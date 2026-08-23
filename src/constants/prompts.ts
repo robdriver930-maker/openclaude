@@ -12,6 +12,7 @@ import {
   VERIFICATION_AGENT_TYPE,
 } from '../tools/AgentTool/constants.js'
 import { FILE_WRITE_TOOL_NAME } from '../tools/FileWriteTool/prompt.js'
+import { FILE_DELETE_TOOL_NAME } from '../tools/FileDeleteTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../tools/FileReadTool/prompt.js'
 import { FILE_EDIT_TOOL_NAME } from '../tools/FileEditTool/constants.js'
 import { TODO_WRITE_TOOL_NAME } from '../tools/TodoWriteTool/constants.js'
@@ -54,6 +55,7 @@ import {
   DANGEROUS_uncachedSystemPromptSection,
   resolveSystemPromptSections,
 } from './systemPromptSections.js'
+import { ROBERT_DIRECTION_INSTRUCTION } from './robertDirectionInstruction.js'
 import { SLEEP_TOOL_NAME } from '../tools/SleepTool/prompt.js'
 import { TICK_TAG } from './xml.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -214,6 +216,7 @@ function getSimpleDoingTasksSection(): string {
 
   const items = [
     `The user will primarily request you to perform software engineering tasks. These may include solving bugs, adding new functionality, refactoring code, explaining code, and more. When given an unclear or generic instruction, consider it in the context of these software engineering tasks and the current working directory. For example, if the user asks you to change "methodName" to snake case, do not reply with just "method_name", instead find the method in the code and modify the code.`,
+    `When the user gives you a job, do it. Do not enter plan mode, do not write a plan and wait, and do not ask them to approve, confirm, or commit first. Git commit only if they explicitly asked to commit.`,
     `You are highly capable and often allow users to complete ambitious tasks that would otherwise be too complex or take too long. You should defer to user judgement about whether a task is too large to attempt.`,
     // @[MODEL LAUNCH]: capy v8 assertiveness counterweight (PR #24302) — un-gate once validated on external via A/B
     ...(process.env.USER_TYPE === 'ant'
@@ -288,6 +291,7 @@ function getUsingYourToolsSection(enabledTools: Set<string>): string {
     `To read files use ${FILE_READ_TOOL_NAME} instead of cat, head, tail, or sed`,
     `To edit files use ${FILE_EDIT_TOOL_NAME} instead of sed or awk`,
     `To create files use ${FILE_WRITE_TOOL_NAME} instead of cat with heredoc or echo redirection`,
+    `To delete files or folders use ${FILE_DELETE_TOOL_NAME} instead of rm or Remove-Item`,
     ...(embedded
       ? []
       : [
@@ -466,6 +470,7 @@ export async function getSystemPrompt(
   ) {
     logForDebugging(`[SystemPrompt] path=simple-proactive`)
     return [
+      ROBERT_DIRECTION_INSTRUCTION,
       `\nYou are an autonomous agent. Use the available tools to do useful work.
 
 ${CYBER_RISK_INSTRUCTION}`,
@@ -556,6 +561,7 @@ ${CYBER_RISK_INSTRUCTION}`,
 
   return [
     // --- Static content (cacheable) ---
+    ROBERT_DIRECTION_INSTRUCTION,
     getSimpleIntroSection(outputStyleConfig),
     getSimpleSystemSection(),
     outputStyleConfig === null ||
@@ -898,7 +904,7 @@ When the user is actively engaging with you, check for and respond to their mess
 Act on your best judgment rather than asking for confirmation.
 
 - Read files, search code, explore the project, run tests, check types, run linters — all without asking.
-- Make code changes. Commit when you reach a good stopping point.
+- Make code changes. Do not git-commit unless the user explicitly asked to commit.
 - If you're unsure between two reasonable approaches, pick one and go. You can always course-correct.
 
 ## Be concise
@@ -913,6 +919,6 @@ Do not narrate each step, list every file you read, or explain routine actions. 
 ## Terminal focus
 
 The user context may include a \`terminalFocus\` field indicating whether the user's terminal is focused or unfocused. Use this to calibrate how autonomous you are:
-- **Unfocused**: The user is away. Lean heavily into autonomous action — make decisions, explore, commit, push. Only pause for genuinely irreversible or high-risk actions.
-- **Focused**: The user is watching. Be more collaborative — surface choices, ask before committing to large changes, and keep your output concise so it's easy to follow in real time.${BRIEF_PROACTIVE_SECTION && briefToolModule?.isBriefEnabled() ? `\n\n${BRIEF_PROACTIVE_SECTION}` : ''}`
+- **Unfocused**: The user is away. Lean heavily into autonomous action — make decisions, explore, and finish the job. Only pause for genuinely irreversible or high-risk actions. Do not git-commit or push unless they asked.
+- **Focused**: The user is watching. Keep your output concise so it's easy to follow in real time. Do not pause for a second approval on a job they already gave you.${BRIEF_PROACTIVE_SECTION && briefToolModule?.isBriefEnabled() ? `\n\n${BRIEF_PROACTIVE_SECTION}` : ''}`
 }

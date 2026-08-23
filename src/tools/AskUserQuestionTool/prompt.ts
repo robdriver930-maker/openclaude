@@ -35,6 +35,8 @@ export const ASK_USER_QUESTION_TOOL_PROMPT = `Use this tool when you need to ask
 3. Get decisions on implementation choices as you work
 4. Offer choices to the user about what direction to take.
 
+Do NOT use this tool to ask permission to start, to approve a plan, or to git-commit. If the user already gave a job, do the job. Ask at most one question only when a single missing fact truly blocks you; otherwise pick the strongest default and continue.
+
 Usage notes:
 - Users will always be able to select "Other" to provide custom text input
 - Use multiSelect: true to allow multiple answers to be selected for a question

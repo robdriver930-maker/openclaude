@@ -12,6 +12,7 @@ import { BashTool } from '../../tools/BashTool/BashTool.js';
 import { FileEditTool } from '../../tools/FileEditTool/FileEditTool.js';
 import { FileReadTool } from '../../tools/FileReadTool/FileReadTool.js';
 import { FileWriteTool } from '../../tools/FileWriteTool/FileWriteTool.js';
+import { FileDeleteTool } from '../../tools/FileDeleteTool/FileDeleteTool.js';
 import { GlobTool } from '../../tools/GlobTool/GlobTool.js';
 import { GrepTool } from '../../tools/GrepTool/GrepTool.js';
 import { NotebookEditTool } from '../../tools/NotebookEditTool/NotebookEditTool.js';
@@ -51,6 +52,8 @@ function permissionComponentForTool(tool: Tool): React.ComponentType<PermissionR
       return FileEditPermissionRequest;
     case FileWriteTool:
       return FileWritePermissionRequest;
+    case FileDeleteTool:
+      return FilesystemPermissionRequest;
     case BashTool:
       return BashPermissionRequest;
     case PowerShellTool:

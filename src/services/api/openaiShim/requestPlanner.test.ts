@@ -33,6 +33,9 @@ function createPlanner(
       tools.map((tool) => ({ type: 'function', name: tool.name })),
     getOllamaNumCtx: () => 32_768,
     normalizeOllamaNativeMessages: (messages) => messages,
+    ollamaThinkForRequest: (plan, _messages) =>
+      plan.thinkingType === 'disabled' ? false : Boolean(plan.reasoningEffort),
+    applyQwen38OllamaSampling: () => {},
     useNativeOllamaChat: false,
     fastPath: { skipStableStringify: false },
     stableStringifyJson: (value) => JSON.stringify(value),
@@ -331,6 +334,7 @@ describe('serialization and retry state', () => {
       model: 'llama',
       messages: [{ role: 'user', content: 'hello' }],
       stream: true,
+      think: false,
       options: {
         num_ctx: 32_768,
         num_predict: 42,

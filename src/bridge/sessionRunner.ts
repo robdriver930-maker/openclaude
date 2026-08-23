@@ -143,6 +143,8 @@ const TOOL_VERBS: Record<string, string> = {
   Task: 'Running task',
   FileReadTool: 'Reading',
   FileWriteTool: 'Writing',
+  Delete: 'Deleting',
+  FileDeleteTool: 'Deleting',
   FileEditTool: 'Editing',
   GlobTool: 'Searching',
   GrepTool: 'Searching',

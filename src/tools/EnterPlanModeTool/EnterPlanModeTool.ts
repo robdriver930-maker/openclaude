@@ -34,7 +34,7 @@ export const EnterPlanModeTool: Tool<InputSchema, Output> = buildTool({
   searchHint: 'switch to plan mode to design an approach before coding',
   maxResultSizeChars: 100_000,
   async description() {
-    return 'Requests permission to enter plan mode for complex tasks requiring exploration and design'
+    return 'Enter plan mode only when the user explicitly asked to plan first. Do not use this to start a job they already gave you.'
   },
   async prompt() {
     return getEnterPlanModeToolPrompt()

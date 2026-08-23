@@ -30,8 +30,10 @@ import {
   maybeSetNvidiaNimChatTemplateThinking,
 } from './providerCompatibility.js'
 import {
+  applyQwen38OllamaSampling,
   getOllamaNumCtx,
   normalizeOllamaNativeMessages,
+  ollamaThinkForRequest,
 } from './ollamaAdapter.js'
 import { createRequestBodyPlanner } from './requestPlanner.js'
 
@@ -379,6 +381,8 @@ export function prepareOpenAIRequest({
     maxCompletionTokensValue,
     getOllamaNumCtx,
     normalizeOllamaNativeMessages,
+    ollamaThinkForRequest,
+    applyQwen38OllamaSampling,
     useNativeOllamaChat,
     fastPath,
     stableStringifyJson,

@@ -11,6 +11,7 @@ import { ExitPlanModeV2Tool } from 'src/tools/ExitPlanModeTool/ExitPlanModeV2Too
 import { FileEditTool } from 'src/tools/FileEditTool/FileEditTool.js';
 import { FileReadTool } from 'src/tools/FileReadTool/FileReadTool.js';
 import { FileWriteTool } from 'src/tools/FileWriteTool/FileWriteTool.js';
+import { FileDeleteTool } from 'src/tools/FileDeleteTool/FileDeleteTool.js';
 import { GlobTool } from 'src/tools/GlobTool/GlobTool.js';
 import { GrepTool } from 'src/tools/GrepTool/GrepTool.js';
 import { ListMcpResourcesTool } from 'src/tools/ListMcpResourcesTool/ListMcpResourcesTool.js';
@@ -54,7 +55,7 @@ function getToolBuckets(): ToolBuckets {
     },
     EDIT: {
       name: 'Edit tools',
-      toolNames: new Set([FileEditTool.name, FileWriteTool.name, NotebookEditTool.name])
+      toolNames: new Set([FileEditTool.name, FileWriteTool.name, FileDeleteTool.name, NotebookEditTool.name])
     },
     EXECUTION: {
       name: 'Execution tools',

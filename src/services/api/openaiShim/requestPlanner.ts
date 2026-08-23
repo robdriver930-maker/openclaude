@@ -90,6 +90,15 @@ type RequestBodyPlannerContext = {
   maxCompletionTokensValue?: number
   getOllamaNumCtx: () => number
   normalizeOllamaNativeMessages: (messages: unknown) => unknown
+  ollamaThinkForRequest: (
+    plan: { thinkingType?: string; reasoningEffort?: string },
+    messages: unknown,
+  ) => boolean | 'low' | 'medium' | 'high' | 'max'
+  applyQwen38OllamaSampling: (
+    options: Record<string, unknown>,
+    think: boolean | 'low' | 'medium' | 'high' | 'max',
+    model: string | undefined,
+  ) => void
   useNativeOllamaChat: boolean
   fastPath: { skipStableStringify: boolean }
   stableStringifyJson: (value: unknown) => string
@@ -116,6 +125,8 @@ export function createRequestBodyPlanner(context: RequestBodyPlannerContext) {
     maxCompletionTokensValue,
     getOllamaNumCtx,
     normalizeOllamaNativeMessages,
+    ollamaThinkForRequest,
+    applyQwen38OllamaSampling,
     useNativeOllamaChat,
     fastPath,
     stableStringifyJson,
@@ -424,10 +435,23 @@ export function createRequestBodyPlanner(context: RequestBodyPlannerContext) {
       options.temperature = params.temperature
     if (params.top_p !== undefined) options.top_p = params.top_p
 
+    const nativeMessages = normalizeOllamaNativeMessages(body.messages)
+    const enableThink = ollamaThinkForRequest(
+      reasoningRequestPlan,
+      nativeMessages,
+    )
+    applyQwen38OllamaSampling(options, enableThink, request.resolvedModel)
+
     return {
       model: request.resolvedModel,
-      messages: normalizeOllamaNativeMessages(body.messages),
+      messages: nativeMessages,
       stream: params.stream ?? false,
+      // Qwen3.8 defaults to thinking ON. Always send an explicit flag:
+      // compact uses thinking disabled — without think:false the summariser
+      // burns the budget in message.thinking and autocompact fails (no text).
+      // Daily MAX maps effort=max to think:"max" (boolean true is weaker).
+      // After tool results, think is forced off so the job continues.
+      think: enableThink,
       options,
       ...(body.tools ? { tools: body.tools } : {}),
     }

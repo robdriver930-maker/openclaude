@@ -261,3 +261,108 @@ export function convertOllamaStreamingResponse(response: Response, fallbackModel
   }
   return responseWithPreservedUrl(stream, { status: response.status, statusText: response.statusText, headers: { 'content-type': 'text/event-stream' } }, response.url)
 }
+/**
+ * Native /api/chat `think` value.
+ * Compact must send false (otherwise the summariser burns the budget in
+ * message.thinking and autocompact returns no text). Daily MAX sends "max"
+ * so Qwen 3.8 actually thinks at the highest level, not just think:true.
+ */
+export function ollamaThinkValue(plan: {
+  thinkingType?: string
+  reasoningEffort?: string
+}): boolean | 'low' | 'medium' | 'high' | 'max' {
+  if (plan.thinkingType === 'disabled') {
+    return false
+  }
+  const effort = plan.reasoningEffort
+  if (effort === 'xhigh' || effort === 'max' || effort === 'ultracode') {
+    return 'max'
+  }
+  if (effort === 'high' || effort === 'medium' || effort === 'low') {
+    return effort
+  }
+  return plan.thinkingType === 'enabled' || Boolean(effort)
+}
+
+const TOOL_BOUNDARY_PLACEHOLDER = '[Tool results received]'
+
+/**
+ * After tools, Qwen 3.8 + think:"max" often fills the whole budget in
+ * message.thinking and returns empty content / no tool_calls. The query
+ * loop then treats the turn as done (UI pause). Force think off on those
+ * continuations so the model actually calls the next tool or answers.
+ */
+export function isOllamaPostToolTurn(messages: unknown): boolean {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return false
+  }
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i] as {
+      role?: string
+      content?: unknown
+      tool_calls?: unknown[]
+    }
+    const role = msg?.role
+    if (role === 'system') continue
+    if (role === 'tool') return true
+    if (role === 'assistant') {
+      if (Array.isArray(msg.tool_calls) && msg.tool_calls.length > 0) {
+        return true
+      }
+      const content =
+        typeof msg.content === 'string' ? msg.content.trim() : ''
+      if (content === TOOL_BOUNDARY_PLACEHOLDER || content === '') {
+        continue
+      }
+      return false
+    }
+  }
+  return false
+}
+
+export function ollamaThinkForRequest(
+  plan: {
+    thinkingType?: string
+    reasoningEffort?: string
+  },
+  messages: unknown,
+): boolean | 'low' | 'medium' | 'high' | 'max' {
+  if (isOllamaPostToolTurn(messages)) {
+    return false
+  }
+  return ollamaThinkValue(plan)
+}
+
+function isQwen38LocalModel(model: string | undefined): boolean {
+  return /qwen3\.8/i.test(model ?? '')
+}
+
+/**
+ * Qwen3.8 official sampling (Alibaba / Unsloth, Aug 2026).
+ * Thinking and instruct modes are different. After tools we force think off,
+ * so those turns MUST use instruct sampling — thinking temp+penalties with
+ * think:false makes the 27B ramble and skip the next tool call.
+ */
+export function applyQwen38OllamaSampling(
+  options: Record<string, unknown>,
+  think: boolean | 'low' | 'medium' | 'high' | 'max',
+  model: string | undefined,
+): void {
+  if (!isQwen38LocalModel(model)) return
+  const thinkingOn = think !== false
+  if (thinkingOn) {
+    options.temperature = 1.0
+    options.top_p = 0.95
+    options.top_k = 20
+    options.min_p = 0
+    options.presence_penalty = 0
+    options.repeat_penalty = 1.0
+    return
+  }
+  options.temperature = 0.7
+  options.top_p = 0.8
+  options.top_k = 20
+  options.min_p = 0
+  options.presence_penalty = 1.5
+  options.repeat_penalty = 1.0
+}
