@@ -1,0 +1,31 @@
+DO NOT RUN THESE SCRIPTS FOR DAILY USE
+======================================
+They rewrite ~/.openclaude/settings.json to old models / wrong context sizes
+and undo the current OpenClaude main stack (run.bat + run-opus.bat).
+
+QUARANTINED (do not run):
+  stable-5090.mjs
+  harden-local-safe.mjs
+  harden-local-step-c.mjs
+  snappy-local-5090.mjs
+  enable-max-performance.ps1   (repo root — caps ctx at 65536)
+
+ALSO AVOID unless you know why:
+  max-local-connected.mjs  — only if reconnecting Ollama; prefer verify-local-stack.mjs first
+  apply-stack.ps1 with MCPs\servers.json that re-enables 9 cloud MCPs (keep MCP empty for speed)
+
+SAFE / ALLOWED repair scripts:
+  node setup\verify-local-stack.mjs
+  node setup\create-coding-model.mjs --force   (refresh Modelfile system prompt)
+  node setup\apply-local-model-settings.mjs    (sync settings without MCP park)
+  node setup\prove-ollama-chat.mjs qwen3.8-oc-code:27b
+  node setup\park-army-for-context.mjs
+  node setup\restore-army.mjs                 (full army — bloated)
+  node setup\restore-project-expert.mjs
+  node setup\measure-prompt-bloat.mjs
+  setup\golden-path-smoke.ps1
+  openclaude-health.bat / openclaude-maintain.bat
+
+Daily launchers (only these):
+  run.bat       = local qwen3.8-oc-code:27b @ 160k
+  run-opus.bat  = Anthropic claude-opus-4-8

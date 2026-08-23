@@ -1,0 +1,40 @@
+{
+    "mcpServers":  {
+                       "notion":  {
+                                      "type":  "http",
+                                      "url":  "https://mcp.notion.com/mcp"
+                                  },
+                       "figma":  {
+                                     "type":  "http",
+                                     "url":  "https://mcp.figma.com/mcp"
+                                 },
+                       "linear":  {
+                                      "type":  "http",
+                                      "url":  "https://mcp.linear.app/mcp"
+                                  },
+                       "neon":  {
+                                    "type":  "http",
+                                    "url":  "https://mcp.neon.tech/mcp"
+                                },
+                       "atlan":  {
+                                     "type":  "http",
+                                     "url":  "https://mcp.atlan.com/mcp"
+                                 },
+                       "vantage":  {
+                                       "type":  "http",
+                                       "url":  "https://mcp.vantage.sh/mcp"
+                                   },
+                       "paradedb":  {
+                                        "type":  "http",
+                                        "url":  "https://docs.paradedb.com/mcp"
+                                    },
+                       "twilio-docs":  {
+                                           "type":  "http",
+                                           "url":  "https://mcp.twilio.com/docs"
+                                       },
+                       "cockroachdb-cloud":  {
+                                                 "type":  "http",
+                                                 "url":  "https://cockroachlabs.cloud/mcp"
+                                             }
+                   }
+}

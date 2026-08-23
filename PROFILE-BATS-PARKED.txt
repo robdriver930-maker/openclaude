@@ -1,0 +1,8 @@
+﻿PROFILE LAUNCHERS — NOT FOR DAILY USE
+=====================================
+Use only:
+  run.bat      (local Qwen)
+  run-opus.bat (Opus 4.8)
+
+These profile bats (run-coder / run-websites / run-software-ai) are half-finished
+and fight the two-launcher setup. Keep for later; do not use daily.

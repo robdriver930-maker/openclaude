@@ -1,0 +1,56 @@
+1
+00:00:00,100 --> 00:00:01,145
+Attention!
+
+2
+00:00:01,095 --> 00:00:03,357
+Is your computer slowing you down?
+
+3
+00:00:03,357 --> 00:00:05,202
+Laptop keeps crashing?
+
+4
+00:00:05,202 --> 00:00:07,416
+Tech problems ruining your day?
+
+5
+00:00:07,416 --> 00:00:10,607
+At Bobby's Tech Services, we've got you covered.
+
+6
+00:00:10,607 --> 00:00:15,666
+We fix desktop computers and laptops - fast, reliable, and affordable.
+
+7
+00:00:15,666 --> 00:00:22,726
+From virus removal to full system rebuilds, software setup to data recovery, no job is too big or too small.
+
+8
+00:00:22,726 --> 00:00:29,773
+Here's the deal: for just thirty pounds, we'll diagnose ANY computer problem and have an answer within twenty-four hours.
+
+9
+00:00:29,773 --> 00:00:35,392
+That's right - a full professional diagnostic for only thirty quid, guaranteed within a day.
+
+10
+00:00:35,392 --> 00:00:37,858
+Call Bobby's Tech Services today.
+
+11
+00:00:37,858 --> 00:00:39,227
+Quality work.
+
+12
+00:00:39,227 --> 00:00:40,702
+Honest prices.
+
+13
+00:00:40,702 --> 00:00:42,142
+Real results.
+
+14
+00:00:42,142 --> 00:00:46,108
+Bobby's Tech Services - your computer, our expertise.
+

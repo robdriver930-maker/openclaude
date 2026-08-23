@@ -1,0 +1,89 @@
+OPENCLAUDE PREMIUM AGENT ARMY
+=============================
+Count: 77
+Installed:
+  C:\Users\GoldenBoy\.openclaude\agents
+  C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main\.openclaude\agents
+  C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main\agents-library (source library in repo)
+
+Use in OpenClaude: ask to use /agents or delegate via the Agent tool.
+Reinstall: powershell -ExecutionPolicy Bypass -File setup\install-premium-agents.ps1
+
+Roster:
+ 1. project-strategist
+ 2. product-visionary
+ 3. project-planner
+ 4. roadmap-architect
+ 5. scope-guardian
+ 6. requirements-analyst
+ 7. stakeholder-translator
+ 8. delivery-orchestrator
+ 9. risk-assessor
+10. milestone-conductor
+11. project-completionist
+12. brief-to-build
+13. software-architect
+14. systems-designer
+15. domain-modeler
+16. api-architect
+17. database-architect
+18. frontend-architect
+19. backend-architect
+20. interface-designer
+21. design-system-architect
+22. ux-flow-architect
+23. premium-visual-director
+24. architecture-reviewer
+25. typescript-specialist
+26. react-specialist
+27. node-specialist
+28. python-specialist
+29. electron-desktop-specialist
+30. full-stack-builder
+31. code-surgeon
+32. refactor-master
+33. type-system-guardian
+34. performance-engineer
+35. test-architect
+36. debugging-detective
+37. code-reviewer-elite
+38. pragmatic-coder
+39. windows-shell-master
+40. powershell-specialist
+41. bash-automation-engineer
+42. devops-scripting-lead
+43. environment-hardening-agent
+44. filesystem-surgeon
+45. process-and-pipeline-agent
+46. install-and-bootstrap-agent
+47. threejs-specialist
+48. r3f-scene-architect
+49. pbr-materials-specialist
+50. 3d-apparel-configurator
+51. animation-director
+52. remotion-motion-specialist
+53. camera-and-lighting-director
+54. webgl-performance-guardian
+55. 3d-product-visualizer
+56. motion-craft-engineer
+57. spatial-ui-composer
+58. cinematic-intro-designer
+59. security-hardening-specialist
+60. ci-cd-release-engineer
+61. observability-engineer
+62. data-and-schema-specialist
+63. ai-systems-integrator
+64. mcp-and-tooling-architect
+65. windows-desktop-product-lead
+66. saas-product-engineer
+67. quality-gatekeeper
+68. documentation-architect
+69. openclaude-ops-specialist
+70. openclaude-self-healer
+71. openclaude-skill-router
+72. capability-dispatcher
+73. context-and-memory-guardian
+74. agent-orchestra-conductor
+75. prompt-precision-engineer
+76. knowledge-synthesizer
+77. continuous-improvement-coach
