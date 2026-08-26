@@ -5,10 +5,10 @@ export const WEB_SEARCH_TOOL_NAME = 'WebSearch'
 export function getWebSearchPrompt(): string {
   const currentMonthYear = getLocalMonthYear()
   return `
-- Allows Claude to search the web and use the results to inform responses
+- Allows OpenClaude to search the web and use the results to inform responses
 - Provides up-to-date information for current events and recent data
 - Returns search result information formatted as search result blocks, including links as markdown hyperlinks
-- Use this tool for accessing information beyond Claude's knowledge cutoff
+- Use this tool for accessing information beyond OpenClaude's knowledge cutoff
 - Searches are performed automatically within a single API call
 
 CRITICAL REQUIREMENT - You MUST follow this:
@@ -25,7 +25,7 @@ CRITICAL REQUIREMENT - You MUST follow this:
 
 Usage notes:
   - Domain filtering is supported to include or block specific websites
-  - Web search is only available in the US
+  - After at most 3 searches, stop looking and write the answer with Sources. A failed fetch is not a reason to search forever — report what you have and mark gaps UNVERIFIED.
 
 IMPORTANT - Use the correct year in search queries:
   - The current month is ${currentMonthYear}. You MUST use this year when searching for recent information, documentation, or current events.

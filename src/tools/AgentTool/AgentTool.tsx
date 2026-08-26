@@ -56,6 +56,16 @@ import { BackgroundHint } from '../BashTool/UI.js';
 import { FILE_READ_TOOL_NAME } from '../FileReadTool/prompt.js';
 import { spawnTeammate } from '../shared/spawnMultiAgent.js';
 import { setAgentColor } from './agentColorManager.js';
+import {
+  AGENT_DEADLINE_ABORT,
+  acquireLocalAgentSlot,
+  attachAgentDeadline,
+  formatAgentDeadlineReport,
+  getAgentWallClockTimeoutMs,
+  isAgentDeadlineAbort,
+  resolveAgentMaxTurns,
+  shouldForceSyncLocalSubagents,
+} from './agentDeadline.js';
 import { agentToolResultSchema, classifyHandoffIfNeeded, emitTaskProgress, extractPartialResult, finalizeAgentTool, getLastToolUseName, runAsyncAgentLifecycle } from './agentToolUtils.js';
 import { GENERAL_PURPOSE_AGENT } from './built-in/generalPurposeAgent.js';
 import { AGENT_TOOL_NAME, LEGACY_AGENT_TOOL_NAME, ONE_SHOT_BUILTIN_AGENT_TYPES } from './constants.js';
@@ -560,6 +570,7 @@ export const AgentTool = buildTool({
     }
 
     const forceSyncCopilot = shouldForceSyncSubagentsInCopilotMode();
+    const forceSyncLocal = shouldForceSyncLocalSubagents();
     const forcePlanModeSync = permissionMode === 'plan' || toolUseContext.getAppState().toolPermissionContext.mode === 'plan';
 
     // Use inline env check instead of coordinatorModule to avoid circular
@@ -590,7 +601,7 @@ export const AgentTool = buildTool({
         `or GITHUB_COPILOT_OPTIMIZATION_DISABLED=1.`,
       );
     }
-    const shouldRunAsync = forceSyncCopilot || forcePlanModeSync
+    const shouldRunAsync = forceSyncCopilot || forcePlanModeSync || forceSyncLocal
       ? false
       : (run_in_background === true || selectedAgent.background === true || isCoordinator || forceAsync || assistantForceAsync || (proactiveModule?.isProactiveActive() ?? false)) && !isBackgroundTasksDisabled;
 
@@ -785,6 +796,15 @@ export const AgentTool = buildTool({
         content: buildWorktreeIsolationFallbackNotice(cwd ?? getCwd())
       }));
     }
+    const agentTimeoutMs = getAgentWallClockTimeoutMs();
+    const agentMaxTurns = resolveAgentMaxTurns(
+      selectedAgent.maxTurns,
+      selectedAgent.agentType,
+    );
+    const agentDeadline = attachAgentDeadline(
+      toolUseContext.abortController.signal,
+      agentTimeoutMs,
+    );
     const runAgentParams: Parameters<typeof runAgent>[0] = {
       agentDefinition: selectedAgent,
       promptMessages,
@@ -793,6 +813,7 @@ export const AgentTool = buildTool({
       isAsync: shouldRunAsync,
       querySource: toolUseContext.options.querySource ?? getQuerySourceForAgent(selectedAgent.agentType, isBuiltInAgent(selectedAgent)),
       model: isForkPath ? undefined : model,
+      maxTurns: agentMaxTurns,
       // Fork path: pass parent's system prompt AND parent's exact tool
       // array (cache-identical prefix). workerTools is rebuilt under
       // permissionMode 'bubble' which differs from the parent's mode, so
@@ -804,11 +825,14 @@ export const AgentTool = buildTool({
       // or explicit cwd), skip the pre-built system prompt so runAgent's
       // buildAgentSystemPrompt() runs inside wrapWithCwd where getCwd()
       // returns the override path.
-      override: isForkPath ? {
-        systemPrompt: forkParentSystemPrompt
-      } : enhancedSystemPrompt && !worktreeInfo && !cwd ? {
-        systemPrompt: asSystemPrompt(enhancedSystemPrompt)
-      } : undefined,
+      override: {
+        ...(isForkPath
+          ? { systemPrompt: forkParentSystemPrompt }
+          : enhancedSystemPrompt && !worktreeInfo && !cwd
+            ? { systemPrompt: asSystemPrompt(enhancedSystemPrompt) }
+            : {}),
+        abortController: agentDeadline.controller,
+      },
       availableTools: isForkPath ? toolUseContext.options.tools : workerTools,
       // Pass parent conversation when the fork-subagent path needs full
       // context. useExactTools inherits thinkingConfig (runAgent.ts:624).
@@ -1004,7 +1028,7 @@ export const AgentTool = buildTool({
           type: 'background';
         }> | undefined;
         let cancelAutoBackground: (() => void) | undefined;
-        if (!isBackgroundTasksDisabled && !forceSyncCopilot && !forcePlanModeSync) {
+        if (!isBackgroundTasksDisabled && !forceSyncCopilot && !forceSyncLocal && !forcePlanModeSync) {
           const registration = registerAgentForeground({
             agentId: syncAgentId,
             description,
@@ -1049,6 +1073,8 @@ export const AgentTool = buildTool({
         // Track if an error occurred during iteration
         let syncAgentError: Error | undefined;
         let wasAborted = false;
+        let hitAgentDeadline = false;
+        const releaseLocalSlot = await acquireLocalAgentSlot();
         let worktreeResult: {
           worktreePath?: string;
           worktreeBranch?: string;
@@ -1061,7 +1087,7 @@ export const AgentTool = buildTool({
             // Skip if background tasks are disabled or if Copilot mode is
             // forcing synchronous execution (no foreground registration, so
             // the hint would advertise a non-existent affordance).
-            if (!isBackgroundTasksDisabled && !forceSyncCopilot && !forcePlanModeSync && !backgroundHintShown && elapsed >= PROGRESS_THRESHOLD_MS && toolUseContext.setToolJSX) {
+            if (!isBackgroundTasksDisabled && !forceSyncCopilot && !forceSyncLocal && !forcePlanModeSync && !backgroundHintShown && elapsed >= PROGRESS_THRESHOLD_MS && toolUseContext.setToolJSX) {
               backgroundHintShown = true;
               toolUseContext.setToolJSX({
                 jsx: <BackgroundHint />,
@@ -1074,13 +1100,34 @@ export const AgentTool = buildTool({
             // Race between next message and background signal
             // If background tasks are disabled, just await the next message directly
             const nextMessagePromise = agentIterator.next();
-            const raceResult = backgroundPromise ? await Promise.race([nextMessagePromise.then(r => ({
-              type: 'message' as const,
-              result: r
-            })), backgroundPromise]) : {
-              type: 'message' as const,
-              result: await nextMessagePromise
-            };
+            const remainingMs = agentTimeoutMs - elapsed;
+            const deadlinePromise = remainingMs <= 0
+              ? Promise.resolve({ type: 'deadline' as const })
+              : sleep(remainingMs).then(() => ({ type: 'deadline' as const }));
+            const races: Array<Promise<{
+              type: 'message' | 'background' | 'deadline'
+              result?: Awaited<ReturnType<typeof agentIterator.next>>
+            }>> = [
+              nextMessagePromise.then(r => ({
+                type: 'message' as const,
+                result: r
+              })),
+              deadlinePromise,
+            ];
+            if (backgroundPromise) races.push(backgroundPromise);
+            const raceResult = await Promise.race(races);
+
+            if (raceResult.type === 'deadline') {
+              hitAgentDeadline = true;
+              if (!agentDeadline.controller.signal.aborted) {
+                agentDeadline.controller.abort(AGENT_DEADLINE_ABORT);
+              }
+              await Promise.race([
+                agentIterator.return(undefined).catch(() => {}),
+                sleep(1000),
+              ]);
+              break;
+            }
 
             // Check if we were backgrounded via backgroundAll()
             // foregroundTaskId is guaranteed to be defined if raceResult.type is 'background'
@@ -1251,7 +1298,7 @@ export const AgentTool = buildTool({
             const {
               result
             } = raceResult;
-            if (result.done) break;
+            if (!result || result.done) break;
             const message = result.value;
             agentMessages.push(message);
 
@@ -1325,25 +1372,32 @@ export const AgentTool = buildTool({
           // Handle errors from the sync agent loop
           // AbortError should be re-thrown for proper interruption handling
           if (error instanceof AbortError) {
-            wasAborted = true;
-            logEvent('tengu_agent_tool_terminated', {
-              agent_type: metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              model: metadata.resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              duration_ms: Date.now() - metadata.startTime,
-              is_async: false,
-              is_built_in_agent: metadata.isBuiltInAgent,
-              reason: 'user_cancel_sync' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+            if (
+              hitAgentDeadline ||
+              isAgentDeadlineAbort(agentDeadline.controller.signal.reason)
+            ) {
+              hitAgentDeadline = true;
+            } else {
+              wasAborted = true;
+              logEvent('tengu_agent_tool_terminated', {
+                agent_type: metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+                model: metadata.resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+                duration_ms: Date.now() - metadata.startTime,
+                is_async: false,
+                is_built_in_agent: metadata.isBuiltInAgent,
+                reason: 'user_cancel_sync' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+              });
+              throw error;
+            }
+          } else {
+            // Log the error for debugging
+            logForDebugging(`Sync agent error: ${errorMessage(error)}`, {
+              level: 'error'
             });
-            throw error;
+
+            // Store the error to handle after cleanup
+            syncAgentError = toError(error);
           }
-
-          // Log the error for debugging
-          logForDebugging(`Sync agent error: ${errorMessage(error)}`, {
-            level: 'error'
-          });
-
-          // Store the error to handle after cleanup
-          syncAgentError = toError(error);
         } finally {
           // Clear the background hint UI
           if (toolUseContext.setToolJSX) {
@@ -1397,12 +1451,19 @@ export const AgentTool = buildTool({
           if (!wasBackgrounded) {
             worktreeResult = await cleanupWorktreeIfNeeded();
           }
+          agentDeadline.cleanup();
+          releaseLocalSlot();
         }
 
         // Re-throw abort errors
         // TODO: Find a cleaner way to express this
         const lastMessage = agentMessages.findLast(_ => _.type !== 'system' && _.type !== 'progress');
-        if (lastMessage && isSyntheticMessage(lastMessage)) {
+        if (
+          lastMessage &&
+          isSyntheticMessage(lastMessage) &&
+          !hitAgentDeadline &&
+          !isAgentDeadlineAbort(agentDeadline.controller.signal.reason)
+        ) {
           logEvent('tengu_agent_tool_terminated', {
             agent_type: metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
             model: metadata.resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1429,7 +1490,56 @@ export const AgentTool = buildTool({
           // This allows the parent agent to see partial progress even after an error
           logForDebugging(`Sync agent recovering from error with ${agentMessages.length} messages`);
         }
-        const agentResult = finalizeAgentTool(agentMessages, syncAgentId, metadata);
+        let agentResult
+        try {
+          agentResult = finalizeAgentTool(agentMessages, syncAgentId, metadata);
+        } catch (finalizeError) {
+          if (
+            !(
+              hitAgentDeadline ||
+              isAgentDeadlineAbort(agentDeadline.controller.signal.reason)
+            )
+          ) {
+            throw finalizeError
+          }
+          const partial = extractPartialResult(agentMessages)
+          return {
+            data: {
+              status: 'completed' as const,
+              prompt,
+              agentId: syncAgentId,
+              agentType: selectedAgent.agentType,
+              content: [{
+                type: 'text' as const,
+                text: formatAgentDeadlineReport(partial, agentTimeoutMs),
+              }],
+              totalDurationMs: Date.now() - metadata.startTime,
+              totalTokens: 0,
+              totalToolUseCount: 0,
+              usage: {
+                input_tokens: 0,
+                output_tokens: 0,
+                cache_creation_input_tokens: null,
+                cache_read_input_tokens: null,
+                server_tool_use: null,
+                service_tier: null,
+                cache_creation: null,
+              },
+              ...worktreeResult,
+              ...(worktreeIsolationFallback && { worktreeIsolationFallback: true as const }),
+            },
+          }
+        }
+        if (
+          hitAgentDeadline ||
+          isAgentDeadlineAbort(agentDeadline.controller.signal.reason)
+        ) {
+          const partial = extractPartialResult(agentMessages);
+          agentResult.content = [{
+            type: 'text' as const,
+            text: formatAgentDeadlineReport(partial, agentTimeoutMs),
+          }];
+        }
         if (feature('TRANSCRIPT_CLASSIFIER')) {
           const currentAppState = toolUseContext.getAppState();
           const handoffWarning = await classifyHandoffIfNeeded({
@@ -1469,6 +1579,9 @@ export const AgentTool = buildTool({
     return `${prefix}${i.prompt}`;
   },
   isConcurrencySafe() {
+    // Local Ollama research agents starve each other if they all search at once.
+    if (shouldForceSyncLocalSubagents()) return false
+
     // When Copilot optimizations are disabled, sub-agents are fully
     // unrestricted and can run concurrently.
     if (!isCopilotPremiumOptimizationEnabled()) return true

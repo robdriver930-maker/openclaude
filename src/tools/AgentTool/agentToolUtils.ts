@@ -57,6 +57,10 @@ import { emitTaskProgress as emitTaskProgressEvent } from '../../utils/task/sdkP
 import { isInProcessTeammate } from '../../utils/teammateContext.js'
 import { getTokenCountFromUsage } from '../../utils/tokens.js'
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../ExitPlanModeTool/constants.js'
+import {
+  completeAgentReturnText,
+  shouldBlockNestedSubagents,
+} from './agentDeadline.js'
 import { AGENT_TOOL_NAME, LEGACY_AGENT_TOOL_NAME } from './constants.js'
 import type { AgentDefinition } from './loadAgentsDir.js'
 export type ResolvedAgentTools = {
@@ -94,6 +98,12 @@ export function filterToolsForAgent({
     if (ALL_AGENT_DISALLOWED_TOOLS.has(tool.name)) {
       return false
     }
+    if (
+      shouldBlockNestedSubagents() &&
+      toolMatchesName(tool, AGENT_TOOL_NAME)
+    ) {
+      return false
+    }
     if (!isBuiltIn && CUSTOM_AGENT_DISALLOWED_TOOLS.has(tool.name)) {
       return false
     }
@@ -101,7 +111,10 @@ export function filterToolsForAgent({
       if (isAgentSwarmsEnabled() && isInProcessTeammate()) {
         // Allow AgentTool for in-process teammates to spawn sync subagents.
         // Validation in AgentTool.call() prevents background agents and teammate spawning.
-        if (toolMatchesName(tool, AGENT_TOOL_NAME)) {
+        if (
+          toolMatchesName(tool, AGENT_TOOL_NAME) &&
+          !shouldBlockNestedSubagents()
+        ) {
           return true
         }
         // Allow task tools for in-process teammates to coordinate via shared task list
@@ -334,6 +347,14 @@ export function finalizeAgentTool(
       }
     }
   }
+  const existingText = content
+    .map(block => (block.type === 'text' ? block.text : ''))
+    .join('\n')
+    .trim()
+  const completedText = completeAgentReturnText(agentMessages, existingText)
+  if (completedText !== existingText) {
+    content = [{ type: 'text' as const, text: completedText }]
+  }
 
   const totalTokens = getTokenCountFromUsage(lastAssistantMessage.message.usage)
   const totalToolUseCount = countToolUses(agentMessages)
@@ -501,21 +522,21 @@ export async function classifyHandoffIfNeeded({
 
 /**
  * Extract a partial result string from an agent's accumulated messages.
- * Used when an async agent is killed to preserve what it accomplished.
- * Returns undefined if no text content is found.
+ * Used when an async agent is killed or hits a deadline so the parent still
+ * gets tool findings, not just the last "I'll search more" sentence.
  */
 export function extractPartialResult(
   messages: MessageType[],
 ): string | undefined {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i]!
-    if (m.type !== 'assistant') continue
-    const text = extractTextContent(m.message.content, '\n')
-    if (text) {
-      return text
-    }
-  }
-  return undefined
+  const lastAssistantMessage = getLastAssistantMessage(messages)
+  const existing = lastAssistantMessage
+    ? lastAssistantMessage.message.content
+        .filter(block => block.type === 'text')
+        .map(block => (block.type === 'text' ? block.text : ''))
+        .join('\n')
+        .trim()
+    : undefined
+  return completeAgentReturnText(messages, existing)
 }
 
 type SetAppState = (f: (prev: AppState) => AppState) => void

@@ -9,6 +9,7 @@ import { FILE_WRITE_TOOL_NAME } from '../FileWriteTool/prompt.js'
 import { GLOB_TOOL_NAME } from '../GlobTool/prompt.js'
 import { SEND_MESSAGE_TOOL_NAME } from '../SendMessageTool/constants.js'
 import { AGENT_TOOL_NAME } from './constants.js'
+import { isLocalSubagentRuntime } from './agentDeadline.js'
 import { isForkSubagentEnabled } from './forkSubagent.js'
 import type { AgentDefinition } from './loadAgentsDir.js'
 
@@ -76,6 +77,11 @@ export async function getPrompt(
   // Fork subagent feature: when enabled, insert the "When to fork" section
   // (fork semantics, directive-style prompts) and swap in fork-aware examples.
   const forkEnabled = isForkSubagentEnabled()
+  const localRuntime = isLocalSubagentRuntime()
+
+  const researchForkBullet = localRuntime
+    ? `- **Research**: do it in this thread, or launch one synchronous general-purpose agent. Never launch parallel research forks — the local GPU runs one agent at a time.`
+    : `- **Research**: fork open-ended questions. If research can be broken into independent questions, launch parallel forks in one message. A fork beats a fresh subagent for this \u2014 it inherits context and shares your cache.`
 
   const whenToForkSection = forkEnabled
     ? `
@@ -83,7 +89,7 @@ export async function getPrompt(
 ## When to fork
 
 Fork yourself (omit \`subagent_type\`) when the intermediate tool output isn't worth keeping in your context. The criterion is qualitative \u2014 "will I need this output again" \u2014 not task size.
-- **Research**: fork open-ended questions. If research can be broken into independent questions, launch parallel forks in one message. A fork beats a fresh subagent for this \u2014 it inherits context and shares your cache.
+${researchForkBullet}
 - **Implementation**: prefer to fork implementation work that requires more than a couple of edits. Do research before jumping to implementation.
 
 Forks are cheap because they share your prompt cache. Don't set \`model\` on a fork \u2014 a different model can't reuse the parent's cache. Pass a short \`name\` (one or two words, lowercase) so the user can see the fork in the teams panel and steer it mid-run.
@@ -235,19 +241,32 @@ When NOT to use the ${AGENT_TOOL_NAME} tool:
   // attachment message (conditioned on subscription there). When inline, keep
   // the existing per-call getSubscriptionType() check.
   const concurrencyNote =
-    !listViaAttachment && getSubscriptionType() !== 'pro'
+    !localRuntime &&
+    !listViaAttachment &&
+    getSubscriptionType() !== 'pro'
       ? `
 - Launch multiple agents concurrently whenever possible, to maximize performance; to do that, use a single message with multiple tool uses`
       : ''
+
+  const localResearchNote = localRuntime
+    ? `
+- This session is on a local model with one GPU slot. Do research in this thread, or launch ONE synchronous general-purpose agent. Never launch four research agents at once.`
+    : ''
+
+  const parallelUserNote = localRuntime
+    ? ''
+    : `
+- If the user specifies that they want you to run agents "in parallel", you MUST send a single message with multiple ${AGENT_TOOL_NAME} tool use content blocks. For example, if you need to launch both a build-validator agent and a test-runner agent in parallel, send a single message with both tool calls.`
 
   // Non-coordinator gets the full prompt with all sections
   return `${shared}
 ${whenNotToUseSection}
 
 Usage notes:
-- Always include a short description (3-5 words) summarizing what the agent will do${concurrencyNote}
+- Always include a short description (3-5 words) summarizing what the agent will do${concurrencyNote}${localResearchNote}
 - When the agent is done, it will return a single message back to you. The result returned by the agent is not visible to the user. To show the user the result, you should send a text message back to the user with a concise summary of the result.${
     // eslint-disable-next-line custom-rules/no-process-env-top-level
+    !localRuntime &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS) &&
     !isInProcessTeammate() &&
     !forkEnabled
@@ -259,8 +278,7 @@ Usage notes:
 - To continue a previously spawned agent, use ${SEND_MESSAGE_TOOL_NAME} with the agent's ID or name as the \`to\` field. The agent resumes with its full context preserved. ${forkEnabled ? 'Each fresh Agent invocation with a subagent_type starts without context — provide a complete task description.' : 'Each Agent invocation starts fresh — provide a complete task description.'}
 - The agent's outputs should generally be trusted
 - Clearly tell the agent whether you expect it to write code or just to do research (search, file reads, web fetches, etc.)${forkEnabled ? '' : ", since it is not aware of the user's intent"}
-- If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first. Use your judgement.
-- If the user specifies that they want you to run agents "in parallel", you MUST send a single message with multiple ${AGENT_TOOL_NAME} tool use content blocks. For example, if you need to launch both a build-validator agent and a test-runner agent in parallel, send a single message with both tool calls.
+- If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first. Use your judgement.${parallelUserNote}
 - You can optionally set \`isolation: "worktree"\` to run the agent in a temporary git worktree, giving it an isolated copy of the repository. The worktree is automatically cleaned up if the agent makes no changes; if changes are made, the worktree path and branch are returned in the result.
 - When the current session is outside a git repository (for example a parent folder that contains multiple git repos), set \`cwd\` to the absolute path of the target child repository. You can combine \`cwd\` with \`isolation: "worktree"\` so the worktree is created from that child repo. If worktree creation fails only because no git repository is available, the agent still runs with that \`cwd\` override instead of failing, and the tool result notes that worktree isolation was unavailable.${
     isInProcessTeammate()

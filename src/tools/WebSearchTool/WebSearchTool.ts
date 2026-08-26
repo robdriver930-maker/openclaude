@@ -656,13 +656,6 @@ export const WebSearchTool = buildTool({
     }
   },
   async prompt() {
-    // Strip "US only" when using non-native backends
-    if (shouldUseAdapterProvider() || isCodexResponsesWebSearchEnabled()) {
-      return getWebSearchPrompt().replace(
-        /\n\s*-\s*Web search is only available in the US/,
-        '',
-      )
-    }
     return getWebSearchPrompt()
   },
   renderToolUseMessage,

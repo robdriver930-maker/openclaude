@@ -51,6 +51,7 @@ describe('abort reason normalization', () => {
       }),
     ).toBe('tool-timeout')
     expect(isQueryLevelAbort('tool-timeout')).toBe(false)
+    expect(isQueryLevelAbort('agent-deadline')).toBe(false)
     expect(isQueryLevelAbort('query-timeout')).toBe(true)
   })
 
@@ -75,6 +76,9 @@ describe('abort reason normalization', () => {
     )
     expect(getShellAbortMessage('tool-timeout')).toBe(
       'Command timed out before completion.',
+    )
+    expect(getShellAbortMessage('agent-deadline')).toBe(
+      'Command was interrupted because a research agent hit its deadline.',
     )
   })
 

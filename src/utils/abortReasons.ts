@@ -8,6 +8,7 @@ export type AbortReason =
   | 'agent-summary-superseded'
   | 'memory-extraction-superseded'
   | 'tool-timeout'
+  | 'agent-deadline'
   | 'parent-ended'
   | 'unknown-abort'
 
@@ -21,6 +22,7 @@ const KNOWN_ABORT_REASONS = new Set<string>([
   'agent-summary-superseded',
   'memory-extraction-superseded',
   'tool-timeout',
+  'agent-deadline',
   'parent-ended',
   'unknown-abort',
 ])
@@ -60,7 +62,7 @@ export function normalizeAbortReason(reason: unknown): AbortReason {
 }
 
 export function isQueryLevelAbort(reason: AbortReason): boolean {
-  return reason !== 'tool-timeout'
+  return reason !== 'tool-timeout' && reason !== 'agent-deadline'
 }
 
 export function isExpectedSideTaskAbortReason(reason: unknown): boolean {
@@ -90,6 +92,8 @@ export function getShellAbortMessage(reason: AbortReason): string {
       return 'Command was interrupted because memory extraction was superseded.'
     case 'tool-timeout':
       return 'Command timed out before completion.'
+    case 'agent-deadline':
+      return 'Command was interrupted because a research agent hit its deadline.'
     case 'user-abort':
       return 'Command was interrupted because the enclosing query was aborted.'
     case 'interrupt':
@@ -124,6 +128,8 @@ export function getStreamingAbortMessage(
       return `Streaming aborted because memory extraction was superseded: ${errorText}`
     case 'tool-timeout':
       return `Streaming aborted because tool timed out: ${errorText}`
+    case 'agent-deadline':
+      return `Streaming aborted because a research agent hit its deadline: ${errorText}`
     case 'parent-ended':
       return `Streaming aborted because parent query ended: ${errorText}`
     case 'unknown-abort':
@@ -175,6 +181,8 @@ export function getMissingToolResultAbortMessage(reason: unknown): string {
       return 'Tool use was interrupted because memory extraction was superseded.'
     case 'tool-timeout':
       return 'Tool use timed out before completion.'
+    case 'agent-deadline':
+      return 'Tool use was interrupted because a research agent hit its deadline.'
     case 'parent-ended':
       return 'Tool use was interrupted because the parent query ended.'
     case 'unknown-abort':

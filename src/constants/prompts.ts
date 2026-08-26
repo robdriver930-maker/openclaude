@@ -45,6 +45,7 @@ import {
   getScratchpadDir,
 } from '../utils/permissions/filesystem.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
+import { isLocalSubagentRuntime } from '../tools/AgentTool/agentDeadline.js'
 import { isReplModeEnabled } from '../tools/REPLTool/constants.js'
 import { feature } from 'bun:bundle'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
@@ -400,6 +401,15 @@ function getSessionSpecificGuidanceSection(
   return ['# Session-specific guidance', ...prependBullets(items)].join('\n')
 }
 
+function getLocalQualitySection(): string | null {
+  if (!isLocalSubagentRuntime()) return null
+  return `# Local quality
+- Verify before you claim done: run the command or test and use the real output. If you did not verify, say so. If a check failed, report the failure — do not call it success.
+- If a URL, API, or file was not fetched, mark that claim UNVERIFIED. Do not invent citations.
+- Every job ends with a usable answer. Incomplete is fine if you say what is missing. Never stop in silence after searching.
+- Stay on the named job. Do not wander into extra vendors, OEMs, or side quests.`
+}
+
 // @[MODEL LAUNCH]: Remove this section when we launch numbat.
 function getOutputEfficiencySection(): string {
   if (process.env.USER_TYPE === 'ant') {
@@ -572,6 +582,7 @@ ${CYBER_RISK_INSTRUCTION}`,
     getUsingYourToolsSection(enabledTools),
     getSimpleToneAndStyleSection(),
     getOutputEfficiencySection(),
+    getLocalQualitySection(),
     // === BOUNDARY MARKER - DO NOT MOVE OR REMOVE ===
     ...(shouldUseGlobalCacheScope() ? [SYSTEM_PROMPT_DYNAMIC_BOUNDARY] : []),
     // --- Dynamic content (registry-managed) ---

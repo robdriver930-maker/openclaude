@@ -77,6 +77,11 @@ import {
 } from '../../utils/systemPromptType.js'
 import type { ContentReplacementState } from '../../utils/toolResultStorage.js'
 import { createAgentId } from '../../utils/uuid.js'
+import {
+  getAgentReturnPrompt,
+  getAgentWallClockTimeoutMs,
+  resolveAgentMaxTurns,
+} from './agentDeadline.js'
 import { resolveAgentTools } from './agentToolUtils.js'
 import { type AgentDefinition, isBuiltInAgent } from './loadAgentsDir.js'
 
@@ -813,13 +818,17 @@ export async function* runAgent({
 
   try {
     let queryTerminal: Terminal | undefined
+    const resolvedMaxTurns = resolveAgentMaxTurns(
+      maxTurns ?? agentDefinition.maxTurns,
+      agentDefinition.agentType,
+    )
     const configuredMaxSteps =
       Number.isSafeInteger(maxSteps) && maxSteps! > 0
         ? maxSteps
         : Number.isSafeInteger(agentDefinition.maxSteps) &&
             agentDefinition.maxSteps! > 0
           ? agentDefinition.maxSteps
-          : undefined
+          : resolvedMaxTurns
     const queryIterator = query({
       messages: initialMessages,
       systemPrompt: agentSystemPrompt,
@@ -828,14 +837,11 @@ export async function* runAgent({
       canUseTool,
       toolUseContext: agentToolUseContext,
       querySource,
-      maxTurns: maxTurns ?? agentDefinition.maxTurns,
-      agentStepLimit:
-        configuredMaxSteps !== undefined
-          ? {
-              maxSteps: configuredMaxSteps,
-              agentType: agentDefinition.agentType,
-            }
-          : undefined,
+      maxTurns: resolvedMaxTurns,
+      agentStepLimit: {
+        maxSteps: configuredMaxSteps,
+        agentType: agentDefinition.agentType,
+      },
     })[Symbol.asyncIterator]()
 
     try {
@@ -1010,6 +1016,14 @@ async function getAgentSystemPrompt(
     const agentPrompt = agentDefinition.getSystemPrompt({ toolUseContext })
     const prompts = [agentPrompt]
 
+    const maxTurns = resolveAgentMaxTurns(
+      agentDefinition.maxTurns,
+      agentDefinition.agentType,
+    )
+    prompts.push(
+      getAgentReturnPrompt(maxTurns, getAgentWallClockTimeoutMs()),
+    )
+
     return await enhanceSystemPromptWithEnvDetails(
       prompts,
       effectiveModel,
@@ -1017,8 +1031,15 @@ async function getAgentSystemPrompt(
       enabledToolNames,
     )
   } catch (_error) {
+    const maxTurns = resolveAgentMaxTurns(
+      agentDefinition.maxTurns,
+      agentDefinition.agentType,
+    )
     return enhanceSystemPromptWithEnvDetails(
-      [DEFAULT_AGENT_PROMPT],
+      [
+        DEFAULT_AGENT_PROMPT,
+        getAgentReturnPrompt(maxTurns, getAgentWallClockTimeoutMs()),
+      ],
       effectiveModel,
       additionalWorkingDirectories,
       enabledToolNames,

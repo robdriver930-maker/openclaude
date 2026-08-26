@@ -17,7 +17,7 @@ const DDG_ANOMALY_HINT =
   'JINA_API_KEY, BING_API_KEY, MOJEEK_API_KEY, LINKUP_API_KEY — ' +
   'or use an Anthropic / Vertex / Foundry provider for native web search.'
 
-const MAX_RETRIES = 3
+const MAX_RETRIES = 1
 const INITIAL_BACKOFF_MS = 1000
 
 function isAnomalyError(message: string): boolean {

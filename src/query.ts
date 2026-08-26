@@ -73,6 +73,7 @@ import {
   createMicrocompactBoundaryMessage,
 } from './utils/messages.js'
 import { analyzeContinuationIntent } from './utils/continuation.js'
+import { shouldSkipAgentContinuationNudge } from './tools/AgentTool/agentDeadline.js'
 import { generateToolUseSummary } from './services/toolUseSummary/toolUseSummaryGenerator.js'
 import { prependUserContext, appendSystemContext } from './utils/api.js'
 import {
@@ -2607,7 +2608,8 @@ async function* queryLoop(
         assistantMessages.length > 0 &&
         !agentStepLimit?.summaryRequested &&
         turnCount < (maxTurns ?? Infinity) &&
-        state.continuationNudgeCount < MAX_CONTINUATION_NUDGES
+        state.continuationNudgeCount < MAX_CONTINUATION_NUDGES &&
+        !shouldSkipAgentContinuationNudge(querySource)
       ) {
         const lastAssistant = assistantMessages.at(-1)
         if (lastAssistant?.type === 'assistant') {

@@ -132,6 +132,7 @@ import {
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
 import { filterAgentsByMcpRequirements } from '../tools/AgentTool/loadAgentsDir.js'
 import { AGENT_TOOL_NAME } from '../tools/AgentTool/constants.js'
+import { isLocalSubagentRuntime } from '../tools/AgentTool/agentDeadline.js'
 import {
   formatAgentLine,
   shouldInjectAgentListInMessages,
@@ -1666,7 +1667,8 @@ export function getAgentListingDeltaAttachment(
       addedLines: added.map(formatAgentLine),
       removedTypes: removed,
       isInitial: announced.size === 0,
-      showConcurrencyNote: getSubscriptionType() !== 'pro',
+      showConcurrencyNote:
+        !isLocalSubagentRuntime() && getSubscriptionType() !== 'pro',
     },
   ]
 }

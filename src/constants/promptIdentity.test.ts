@@ -5,6 +5,10 @@ import {
 } from '../test/sharedMutationLock.js'
 
 const originalSimpleEnv = process.env.CLAUDE_CODE_SIMPLE
+const originalOllamaHost = process.env.OLLAMA_HOST
+const originalOllamaBaseUrl = process.env.OLLAMA_BASE_URL
+const originalForceCloudAgents = process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS
+const originalLocalWatchdog = process.env.OPENCLAUDE_LOCAL_AGENT_WATCHDOG
 const originalMacro = (globalThis as Record<string, unknown>).MACRO
 const hadOriginalMacro = Object.hasOwn(globalThis, 'MACRO')
 
@@ -22,6 +26,7 @@ let EXPLORE_AGENT:
 let PLAN_AGENT: typeof import('../tools/AgentTool/built-in/planAgent.js').PLAN_AGENT
 let STATUSLINE_SETUP_AGENT:
   typeof import('../tools/AgentTool/built-in/statuslineSetup.js').STATUSLINE_SETUP_AGENT
+let getWebSearchPrompt: typeof import('../tools/WebSearchTool/prompt.js').getWebSearchPrompt
 
 beforeAll(async () => {
   await acquireSharedMutationLock('constants/promptIdentity.test.ts')
@@ -54,6 +59,7 @@ beforeAll(async () => {
   ;({ STATUSLINE_SETUP_AGENT } = await import(
     '../tools/AgentTool/built-in/statuslineSetup.js'
   ))
+  ;({ getWebSearchPrompt } = await import('../tools/WebSearchTool/prompt.js'))
 })
 
 afterAll(() => {
@@ -68,12 +74,20 @@ afterAll(() => {
   }
 })
 
-afterEach(() => {
-  if (originalSimpleEnv === undefined) {
-    delete process.env.CLAUDE_CODE_SIMPLE
+function restoreEnvVar(key: string, original: string | undefined): void {
+  if (original === undefined) {
+    delete process.env[key]
   } else {
-    process.env.CLAUDE_CODE_SIMPLE = originalSimpleEnv
+    process.env[key] = original
   }
+}
+
+afterEach(() => {
+  restoreEnvVar('CLAUDE_CODE_SIMPLE', originalSimpleEnv)
+  restoreEnvVar('OLLAMA_HOST', originalOllamaHost)
+  restoreEnvVar('OLLAMA_BASE_URL', originalOllamaBaseUrl)
+  restoreEnvVar('OPENCLAUDE_FORCE_CLOUD_AGENTS', originalForceCloudAgents)
+  restoreEnvVar('OPENCLAUDE_LOCAL_AGENT_WATCHDOG', originalLocalWatchdog)
   clearSystemPromptSections()
 })
 
@@ -206,4 +220,44 @@ test('built-in agent prompts describe OpenClaude instead of Claude Code', () => 
   expect(guidePrompt).toContain('**OpenClaude** (the CLI tool)')
   expect(guidePrompt).not.toContain('You are the Claude guide agent.')
   expect(guidePrompt).not.toContain('**Claude Code** (the CLI tool)')
+})
+
+test('local quality section is present when OLLAMA_HOST is set', async () => {
+  delete process.env.CLAUDE_CODE_SIMPLE
+  delete process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS
+  process.env.OLLAMA_HOST = 'ollama'
+  clearSystemPromptSections()
+
+  const text = (await getSystemPrompt([], 'gpt-4o')).join('\n')
+
+  expect(text).toContain('# Local quality')
+  expect(text).toContain('Verify before you claim done')
+  expect(text).toContain('UNVERIFIED')
+  expect(text).toContain('usable answer')
+  expect(text).toContain('Stay on the named job')
+  expect(text).not.toContain('Claude Code')
+})
+
+test('local quality section is omitted when cloud agents are forced', async () => {
+  delete process.env.CLAUDE_CODE_SIMPLE
+  process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS = '1'
+  process.env.OLLAMA_HOST = 'ollama'
+  clearSystemPromptSections()
+
+  const text = (await getSystemPrompt([], 'gpt-4o')).join('\n')
+
+  expect(text).not.toContain('# Local quality')
+})
+
+test('web search prompt uses OpenClaude and stops after three searches', () => {
+  const prompt = getWebSearchPrompt()
+
+  expect(prompt).toContain('Allows OpenClaude')
+  expect(prompt).toContain("beyond OpenClaude's knowledge cutoff")
+  expect(prompt).not.toMatch(/Allows Claude\b/)
+  expect(prompt).not.toMatch(/beyond Claude's knowledge cutoff/)
+  expect(prompt).toContain('Sources:')
+  expect(prompt).toContain('After at most 3 searches')
+  expect(prompt).toContain('failed fetch is not a reason to search forever')
+  expect(prompt).not.toContain('only available in the US')
 })

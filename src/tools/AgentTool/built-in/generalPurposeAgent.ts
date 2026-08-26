@@ -19,6 +19,8 @@ Guidelines:
 function getGeneralPurposeSystemPrompt(): string {
   return `${SHARED_PREFIX} When you complete the task, respond with a concise report covering what was done and any key findings — the caller will relay this to the user, so it only needs the essentials.
 
+Research jobs: stay on the original question. After at most three searches or fetches, write the report with source URLs. Do not keep searching. If something is unknown, mark it UNVERIFIED and return anyway.
+
 ${SHARED_GUIDELINES}`
 }
 

@@ -6,9 +6,13 @@ import { getSystemPrompt } from './prompts.js'
 // when CLAUDE_CODE_SIMPLE is truthy — unset it so the test always exercises
 // the full prompt path regardless of process-level state.
 let originalSimple: string | undefined
+let originalOllamaHost: string | undefined
+let originalForceCloud: string | undefined
 
 beforeEach(() => {
   originalSimple = process.env.CLAUDE_CODE_SIMPLE
+  originalOllamaHost = process.env.OLLAMA_HOST
+  originalForceCloud = process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS
   delete process.env.CLAUDE_CODE_SIMPLE
 })
 
@@ -17,6 +21,16 @@ afterEach(() => {
     delete process.env.CLAUDE_CODE_SIMPLE
   } else {
     process.env.CLAUDE_CODE_SIMPLE = originalSimple
+  }
+  if (originalOllamaHost === undefined) {
+    delete process.env.OLLAMA_HOST
+  } else {
+    process.env.OLLAMA_HOST = originalOllamaHost
+  }
+  if (originalForceCloud === undefined) {
+    delete process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS
+  } else {
+    process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS = originalForceCloud
   }
 })
 
@@ -32,4 +46,18 @@ test('coding system prompt includes the timing and wiring robustness guidance', 
     'derive timing-sensitive logic (animation, physics, timers) from actual elapsed time',
   )
   expect(prompt).toContain('Every element you introduce must be wired up')
+})
+
+test('coding system prompt includes local quality pack when OLLAMA_HOST is set', async () => {
+  process.env.OLLAMA_HOST = 'ollama'
+  delete process.env.OPENCLAUDE_FORCE_CLOUD_AGENTS
+
+  const prompt = await withMockMacro(
+    { ISSUES_EXPLAINER: 'report the issue at the tracker', VERSION: '0.0.0-test' },
+    async () => (await getSystemPrompt([], 'test-model')).join('\n'),
+  )
+
+  expect(prompt).toContain('# Local quality')
+  expect(prompt).toContain('UNVERIFIED')
+  expect(prompt).toContain('Verify before you claim done')
 })
