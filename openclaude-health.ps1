@@ -62,12 +62,19 @@ if (Test-Path $settings) {
     $json = Get-Content $settings -Raw | ConvertFrom-Json
     $stopCmd = ''
     try { $stopCmd = [string]$json.hooks.Stop[0].hooks[0].command } catch { }
+    $sessionStartCmd = ''
+    try { $sessionStartCmd = [string]$json.hooks.SessionStart[0].hooks[0].command } catch { }
     if ($json.disableAllHooks -eq $true) {
         Warn "disableAllHooks=true - reply voice cannot speak"
     } elseif ($stopCmd -match 'speak-reply') {
         Ok "Reply voice hooks live"
     } else {
         Warn "Hooks enabled but speak-reply Stop hook missing"
+    }
+    if ($sessionStartCmd -match 'rules-loader\.ps1') {
+        Ok "SessionStart hook: rules-loader.ps1 (ROBERT-RULES-FOREVER loaded each session)"
+    } else {
+        Warn "SessionStart rules-loader.ps1 hook missing - ROBERT-RULES-FOREVER not auto-loaded"
     }
     if ($json.model -eq "qwen3.8-oc-code:27b") { Ok "Model: qwen3.8-oc-code:27b (local)" }
     elseif ($json.model -eq "claude-opus-4-8") { Ok "Model: claude-opus-4-8 (Opus - use run-opus.bat)" }
@@ -87,6 +94,8 @@ if (Test-Path $settings) {
     if ($deny -contains "Task") { Warn "Task denied - that is the Agent alias, so specialists cannot spawn. run.bat removes it." } else { Ok "Agent alias Task allowed (spawn specialists)" }
     if ($deny -contains "TodoWrite") { Ok "TodoWrite blocked (prevents freeze)" } else { Warn "TodoWrite not denied - can cause Error writing file loops" }
     if ($deny -contains "TaskCreate") { Ok "TaskCreate blocked (prevents freeze)" } else { Warn "TaskCreate not denied" }
+    if ($json.alwaysThinkingEnabled -eq $true) { Ok "alwaysThinkingEnabled=true (MAX thinking)" } else { Warn "alwaysThinkingEnabled is not true (want true)" }
+    if ($json.effortLevel -eq "max") { Ok "effortLevel=max (MAX thinking)" } else { Warn "effortLevel is $($json.effortLevel) (want max)" }
     $ctxRaw = $json.env.OLLAMA_CONTEXT_LENGTH
     $ctxLen = 0
     if ($ctxRaw) { [void][int]::TryParse("$ctxRaw", [ref]$ctxLen) }

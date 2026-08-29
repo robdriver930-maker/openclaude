@@ -276,7 +276,7 @@ function getUsingYourToolsSection(enabledTools: Set<string>): string {
   if (isReplModeEnabled()) {
     const items = [
       taskToolName
-        ? `Break down and manage your work with the ${taskToolName} tool. These tools are helpful for planning your work and helping the user track your progress. Mark each task as completed as soon as you are done with the task. Do not batch up multiple tasks before marking them as completed.`
+        ? `Some environments expose task/todo tools (${TASK_CREATE_TOOL_NAME}, ${TODO_WRITE_TOOL_NAME}) for tracking work. In Robert's local OpenClaude MAX stack these tools are intentionally denied to avoid freeze loops. Do not call Task*/TodoWrite here unless the user explicitly asks and the tool is clearly available.`
         : null,
       `If you intend to use a tool to accomplish a task or analyze a file, use the tool IMMEDIATELY. Do not output a message explaining what you are going to do and then stop to wait for the user to prompt you again. Always call the tool in the same response.`,
     ].filter(item => item !== null)
@@ -306,7 +306,7 @@ function getUsingYourToolsSection(enabledTools: Set<string>): string {
     `Do NOT use the ${BASH_TOOL_NAME} to run commands when a relevant dedicated tool is provided. Using dedicated tools allows the user to better understand and review your work. This is CRITICAL to assisting the user:`,
     providedToolSubitems,
     taskToolName
-      ? `Break down and manage your work with the ${taskToolName} tool. These tools are helpful for planning your work and helping the user track your progress. Mark each task as completed as soon as you are done with the task. Do not batch up multiple tasks before marking them as completed.`
+      ? `Some environments expose task/todo tools (${TASK_CREATE_TOOL_NAME}, ${TODO_WRITE_TOOL_NAME}) for tracking work. In Robert's local OpenClaude MAX stack these tools are intentionally denied to avoid recursion and freeze loops. Prefer doing the job directly with Read/Write/Edit/Glob/Grep/Bash/Agent/Skill and use your own checklist or memory instead of calling Task*/TodoWrite. Only use these tools if the user explicitly requests them and they are clearly enabled in the current environment.`
       : null,
     `You can call multiple tools in a single response. If you intend to call multiple tools and there are no dependencies between them, make all independent tool calls in parallel. Maximize use of parallel tool calls where possible to increase efficiency. However, if some tool calls depend on previous calls to inform dependent values, do NOT call these tools in parallel and instead call them sequentially. For instance, if one operation must complete before another starts, run these operations sequentially instead.`,
     `If you intend to use a tool to accomplish a task or analyze a file, use the tool IMMEDIATELY. Do not output a message explaining what you are going to do and then stop to wait for the user to prompt you again. Always call the tool in the same response.`,

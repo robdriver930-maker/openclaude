@@ -213,12 +213,12 @@ else bad('missing agent capability-dispatcher')
 if (fs.existsSync(path.join(agentsDir, 'electron-desktop-specialist.md'))) {
   ok('agent: electron-desktop-specialist')
 } else {
-  bad('missing agent electron-desktop-specialist')
+  info('optional agent electron-desktop-specialist missing (kept lean 7-core army)')
 }
 if (fs.existsSync(path.join(agentsDir, 'premium-visual-director.md'))) {
   ok('agent: premium-visual-director')
 } else {
-  bad('missing agent premium-visual-director')
+  info('optional agent premium-visual-director missing (kept lean 7-core army)')
 }
 
 // MCP project files
