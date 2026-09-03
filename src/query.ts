@@ -88,6 +88,11 @@ import {
   parseMaxActiveMessagesLimit,
   resolveMaxActiveMessagesLimit,
 } from './utils/maxActiveMessages.js'
+import {
+  DEFAULT_REPL_MAX_TURNS,
+  AUTO_EXTEND_THRESHOLD,
+  MAX_AUTO_EXTENDED_TURNS,
+} from './utils/replMaxTurns.js'
 /* eslint-disable @typescript-eslint/no-require-imports */
 const skillPrefetch = feature('EXPERIMENTAL_SKILL_SEARCH')
   ? (require('./services/skillSearch/prefetch.js') as typeof import('./services/skillSearch/prefetch.js'))
@@ -3145,12 +3150,17 @@ async function* queryLoop(
     }
 
     // Check if we've reached the max turns limit
+    // AUTO-EXTEND LOGIC: If approaching limit but agent is productive (no repeated tool failures),
+    // automatically extend up to MAX_AUTO_EXTENDED_TURNS. This prevents premature stops on complex tasks.
+    const isApproachingLimit = maxTurns && nextTurnCount >= AUTO_EXTEND_THRESHOLD && nextTurnCount < MAX_AUTO_EXTENDED_TURNS
+    const shouldAutoExtend = isApproachingLimit && !toolFailureLoopDecision.hasLoopingFailure
+    
     if (
       maxTurns &&
       nextTurnCount > maxTurns &&
-      !nextAgentStepLimit?.summaryRequested
+      !nextAgentStepLimit?.summaryRequested &&
+      !shouldAutoExtend
     ) {
-      await cleanupComputerUseAtTerminal(toolUseContext)
       // Attachment/memory/skill collection above can await after the earlier
       // post-tool abort check. Re-check immediately before emitting the cap so
       // a Ctrl+B handoff cannot make both owners persist the terminal record.

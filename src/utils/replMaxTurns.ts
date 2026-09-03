@@ -2,19 +2,21 @@ import { getGlobalConfig } from './config.js'
 import { logForDebugging } from './debug.js'
 import { InvalidArgumentError } from '@commander-js/extra-typings'
 
-export const DEFAULT_REPL_MAX_TURNS = 50
+export const DEFAULT_REPL_MAX_TURNS = 500
 export const MAX_TURNS_UNLIMITED_WARNING =
   'Warning: --max-turns 0 disables the local turn limit when applicable. Use with caution.'
+export const AUTO_EXTEND_THRESHOLD = 450
+export const MAX_AUTO_EXTENDED_TURNS = 1000
 
 /** Preset values offered in `/config` (plus any current custom value). */
-export const REPL_MAX_TURNS_OPTIONS = [50, 100, 200, 500] as const
+export const REPL_MAX_TURNS_OPTIONS = [500, 1000, 2000, 5000] as const
 
 /**
  * Shared `--max-turns` help text for Commander registration and behavior tests.
  * Keep remote-backed sessions explicitly out of scope in this string.
  */
 export const MAX_TURNS_CLI_DESCRIPTION =
-  'Maximum number of agentic turns per prompt. In local interactive mode, set to 0 for unlimited turns (use with caution). This overrides the default 50-turn REPL query cap and is also configurable via OPENCLAUDE_MAX_TURNS or /config. Does not apply to remote-backed sessions (connect/ssh/--remote). In --print mode this early-exits after the specified number of turns.'
+  'Maximum number of agentic turns per prompt. In local interactive mode, set to 0 for unlimited turns (use with caution). This overrides the default 500-turn REPL query cap and is also configurable via OPENCLAUDE_MAX_TURNS or /config. Does not apply to remote-backed sessions (connect/ssh/--remote). In --print mode this early-exits after the specified number of turns. AUTO-EXTEND: When approaching the limit (450+ turns), the system automatically extends up to 1000 turns if the agent is productively working (no repeated tool failures).'
 
 export function parseMaxTurnsCli(value: string): number {
   const parsed = value.trim() === '' ? Number.NaN : Number(value)

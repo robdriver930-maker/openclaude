@@ -171,6 +171,30 @@ export function getReplayResultStatusForError(
   return isAbortError(error) ? 'cancelled' : 'error'
 }
 
+/**
+ * Builds the directive shown to the model when the doom-loop guard blocks a call.
+ * The guard only refuses; this turns the refusal into an actionable recovery so
+ * the model stops and changes approach instead of re-firing the identical call.
+ * count is the consecutive identical-call total from checkDoomLoop.
+ */
+function doomLoopRecoveryDirective(count: number, toolName: string): string {
+  const noun = toolName === BASH_TOOL_NAME ? 'command' : 'tool input'
+  if (count <= 3) {
+    return (
+      `STOP. Do NOT send the identical ${noun} again — an identical ${noun} gives an identical result. ` +
+      `First re-read the full error or output the previous call already returned (it is already in this conversation). ` +
+      `Then either (a) change what is observable — fix a path, flag, file, or argument — and retry ONCE, or (b) switch to a different tool/approach. ` +
+      `If you cannot make anything observable change, ask the user instead of retrying.`
+    )
+  }
+  return (
+    `HARD STOP — this is the ${count}th identical ${noun} and it has failed every time. ` +
+    `Do NOT call this tool again with the same ${noun}. ` +
+    `Reply to the user now with the exact error/output text you have, what you think caused it, and what you would change — then wait for their answer. ` +
+    `Load the "error-playbook" procedure if it is available.`
+  )
+}
+
 export function normalizeReplayToolInput<T>(
   processedInput: T,
   originalInput: T,
@@ -501,7 +525,7 @@ export async function* runToolUse(
         content: [
           {
             type: 'tool_result',
-            content: `<tool_use_error>Blocked: ${doomLoop.count} consecutive calls to this tool with identical input — you are likely in a loop. Change the input, try a different tool, or ask the user for help. A deliberate repeat is fine once something observable has changed (new output to check, a modified file, an updated instruction).</tool_use_error>`,
+            content: `<tool_use_error>Blocked: ${doomLoop.count} consecutive calls to this tool with identical input — you are likely in a loop. ${doomLoopRecoveryDirective(doomLoop.count, toolName)}</tool_use_error>`,
             is_error: true,
             tool_use_id: toolUse.id,
           },
