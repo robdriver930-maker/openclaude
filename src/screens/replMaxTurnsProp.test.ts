@@ -95,8 +95,8 @@ describe('interactive REPL max-turn cap', () => {
   test('supplies the local interactive default at runtime', () => {
     clearTurnEnv()
     setReplMaxTurnsConfig(undefined)
-    expect(DEFAULT_REPL_MAX_TURNS).toBe(50)
-    expect(resolveReplMaxTurns()).toBe(50)
+    expect(DEFAULT_REPL_MAX_TURNS).toBe(500)
+    expect(resolveReplMaxTurns()).toBe(500)
   })
 
   test('preserves an explicit interactive cap at runtime', () => {
@@ -244,7 +244,7 @@ describe('interactive REPL max-turn cap', () => {
     expect(GLOBAL_CONFIG_KEYS).toContain('replMaxTurns')
     expect(isGlobalConfigKey('replMaxTurns')).toBe(true)
     expect(DEFAULT_GLOBAL_CONFIG.replMaxTurns).toBeUndefined()
-    expect(REPL_MAX_TURNS_OPTIONS).toEqual([50, 100, 200, 500])
+    expect(REPL_MAX_TURNS_OPTIONS).toEqual([500, 1000, 2000, 5000])
   })
 
   test('headless --max-turns 0 stays distinct from interactive unlimited resolution', () => {

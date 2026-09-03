@@ -3153,7 +3153,7 @@ async function* queryLoop(
     // AUTO-EXTEND LOGIC: If approaching limit but agent is productive (no repeated tool failures),
     // automatically extend up to MAX_AUTO_EXTENDED_TURNS. This prevents premature stops on complex tasks.
     const isApproachingLimit = maxTurns && nextTurnCount >= AUTO_EXTEND_THRESHOLD && nextTurnCount < MAX_AUTO_EXTENDED_TURNS
-    const shouldAutoExtend = isApproachingLimit && !toolFailureLoopDecision.hasLoopingFailure
+    const shouldAutoExtend = isApproachingLimit && !toolFailureLoopDecision.tripped
     
     if (
       maxTurns &&
