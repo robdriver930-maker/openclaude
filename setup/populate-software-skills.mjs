@@ -48,7 +48,7 @@ const toCopy = [
   'skill-creator',
   'mcp-builder',
   'ai-systems-engineer',
-  'claude-api',
+  'public-apis',
   'context-engineering',
   // Design
   'design-an-interface',
@@ -280,7 +280,7 @@ ${toCopy.filter(n => ['improve-codebase-architecture','codebase-design','domain-
 ${toCopy.filter(n => ['code-simplification','code-review-and-quality','debugging-and-error-recovery','systematic-debugging','requesting-code-review','doubt-driven-development','performance-optimization','tdd','test-driven-development','playwright-best-practices','webapp-testing'].includes(n)).map(n => `- \`${n}\``).join('\n')}
 
 ### Creator
-${toCopy.filter(n => ['brainstorming','writing-plans','idea-refine','skill-creator','mcp-builder','ai-systems-engineer','claude-api','context-engineering'].includes(n)).map(n => `- \`${n}\``).join('\n')}
+${toCopy.filter(n => ['brainstorming','writing-plans','idea-refine','skill-creator','mcp-builder','ai-systems-engineer','context-engineering'].includes(n)).map(n => `- \`${n}\``).join('\\n')}
 
 ### Design
 ${toCopy.filter(n => ['design-an-interface','frontend-design','frontend-ui-engineering','high-end-visual-design','impeccable','design-taste-frontend','extract-design-system','web-design-guidelines','ui-ux-pro-max','vercel-react-best-practices','vercel-composition-patterns','theme-factory','redesign-existing-projects','stitch-design-taste','emil-design-eng'].includes(n)).map(n => `- \`${n}\``).join('\n')}

@@ -353,7 +353,7 @@ export function finalizeAgentTool(
     .trim()
   const completedText = completeAgentReturnText(agentMessages, existingText)
   if (completedText !== existingText) {
-    content = [{ type: 'text' as const, text: completedText }]
+    content = [{ type: 'text' as const, text: completedText, citations: null }]
   }
 
   const totalTokens = getTokenCountFromUsage(lastAssistantMessage.message.usage)

@@ -88,7 +88,7 @@ type RequestBodyPlannerContext = {
   ) => Array<Record<string, unknown>>
   maxTokensValue?: number
   maxCompletionTokensValue?: number
-  getOllamaNumCtx: () => number
+  getOllamaNumCtx: (model?: string) => number
   normalizeOllamaNativeMessages: (messages: unknown) => unknown
   ollamaThinkForRequest: (
     plan: { thinkingType?: string; reasoningEffort?: string },
@@ -424,7 +424,7 @@ export function createRequestBodyPlanner(context: RequestBodyPlannerContext) {
 
   const buildOllamaChatBody = (): Record<string, unknown> => {
     const options: Record<string, unknown> = {
-      num_ctx: getOllamaNumCtx(),
+      num_ctx: getOllamaNumCtx(request.resolvedModel),
     }
     if (body.max_tokens !== undefined) {
       options.num_predict = body.max_tokens

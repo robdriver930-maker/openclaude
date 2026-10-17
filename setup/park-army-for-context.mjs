@@ -40,6 +40,7 @@ const KEEP_SKILLS = new Set([
   'public-apis',
   'ultra-enhancers',
   'local-ai-assistant-builder',
+  'find-best-web-tool',
 ])
 
 /** Park skills only by default — live agents stay so Agent tool can dispatch. */

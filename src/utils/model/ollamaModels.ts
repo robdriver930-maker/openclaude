@@ -80,19 +80,27 @@ export async function fetchOllamaModels(): Promise<ModelOption[]> {
 
 /**
  * Prefetch and cache Ollama models. Call during startup.
+ *
+ * Returns the in-flight/completed fetch promise so late callers (e.g. inline
+ * `/model <name>` validation) can await a backfill instead of seeing an empty
+ * cache. Existing fire-and-forget callers are unaffected.
  */
-export function prefetchOllamaModels(): void {
-  if (!isOllamaProvider()) return
-  if (cachedOllamaOptions && cachedOllamaOptions.length > 0) return
-  if (fetchPromise) return
-  fetchPromise = fetchOllamaModels()
-    .then(options => {
-      cachedOllamaOptions = options
-      return options
-    })
-    .finally(() => {
-      fetchPromise = null
-    })
+export function prefetchOllamaModels(): Promise<ModelOption[]> {
+  if (!isOllamaProvider()) return Promise.resolve([])
+  if (cachedOllamaOptions && cachedOllamaOptions.length > 0) {
+    return Promise.resolve(cachedOllamaOptions)
+  }
+  if (!fetchPromise) {
+    fetchPromise = fetchOllamaModels()
+      .then(options => {
+        cachedOllamaOptions = options
+        return options
+      })
+      .finally(() => {
+        fetchPromise = null
+      })
+  }
+  return fetchPromise
 }
 
 /**

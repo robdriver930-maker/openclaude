@@ -153,7 +153,7 @@ if (-not $settings.env) {
 }
 $settings.env | Add-Member -NotePropertyName OPENAI_MODEL -NotePropertyValue $LOCAL -Force
 $settings.env | Add-Member -NotePropertyName OPENCLAUDE_PERFORMANCE_MODE -NotePropertyValue 'max5090' -Force
-$settings.env | Add-Member -NotePropertyName OLLAMA_CONTEXT_LENGTH -NotePropertyValue '163840' -Force
+$settings.env | Add-Member -NotePropertyName OLLAMA_CONTEXT_LENGTH -NotePropertyValue '32768' -Force
 $settings.env | Add-Member -NotePropertyName CLAUDE_CODE_NO_FLICKER -NotePropertyValue '0' -Force
 $settings.env | Add-Member -NotePropertyName CLAUDE_CODE_AUTO_COMPACT_WINDOW -NotePropertyValue '143360' -Force
 $settings.env | Add-Member -NotePropertyName CLAUDE_CODE_OPENAI_FALLBACK_CONTEXT_WINDOW -NotePropertyValue '153600' -Force

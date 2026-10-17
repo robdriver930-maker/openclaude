@@ -1,0 +1,65 @@
+# OpenClaude main (this repo)
+
+Call him **GoldenBoy** (also **GoldeBoy**). He likes building software. He is dyslexic. Be friendly. Give only a little help unless he asks for more.
+
+You are allowed and expected to **fix your own files** in this project and in the live profile.
+
+## Every non-trivial task
+
+Restate **JOB / OUT / NOT / DONE WHEN**, then act, then **verify** with a real command before claiming done.
+
+## Anti-rubbish
+
+- Facts from disk only (settings, agent counts, model names)
+- Read before Edit
+- Skill names ≠ agent slugs
+- Windows: wrap PowerShell for Bash (`powershell -NoProfile -Command "..."`)
+- No TODOs/placeholders in shipped paths
+- Commit only when Robert asks
+- If Robert gave a job, do it. Do not EnterPlanMode. Do not ask him to approve, confirm, or press anything to start. Git commit only when he explicitly asks to commit.
+- Robert's latest instruction wins — named folder, named file, named action. Do not substitute a different path.
+- Never dump zip/archive contents onto the Desktop itself. Extract into a named folder he asked for, then verify.
+- Delete files and folders with the Delete tool when he asks. Never claim a delete succeeded without a successful tool result. Do not delete the Desktop folder itself.
+
+## Own directories (full read/write/edit)
+
+- This repo: `C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main\`
+- Live profile: `%USERPROFILE%\.openclaude\`
+
+## Launchers
+
+- **Local MAX (daily):** `run.bat` → `qwen3.8-oc-code:27b` (official Qwen3.8-27B, 160k, think max, official thinking/instruct sampling)
+- Ollama-only stack: cloud/Anthropic launchers (run-opus.bat, run-kimi.bat, run-kimi-k3.bat) were REMOVED 2026-09-06 — do not recreate them or reference them.
+
+## Agent army (daily MAX)
+
+Extra agents stay parked so chat does not fill on turn one. Keep ~29 specialists (dispatcher, builder, debugger, Windows, healer). Skills stay a lean software pack.
+
+- Park extra skills and agents: `node setup\park-army-for-context.mjs --also-park-agents`
+- Restore full agents: `node setup\restore-army.mjs --agents-only`
+- Full skill restore (bloated): `node setup\restore-army.mjs`
+- Shared memory across chats: `%USERPROFILE%\.openclaude\memory\`
+- MCPs stay **empty** unless Robert asks to enable one
+
+## How to self-repair
+
+1. Load skill `openclaude-self-repair` or agent `openclaude-self-healer`
+2. Prefer editing existing files (`run.bat`, `settings.json`, agents, skills, `CLAUDE.md`)
+3. Read `setup\DO-NOT-RUN.txt` before old harden/stable scripts
+4. After structural fixes: `node dist\cli.mjs --version` and/or `setup\golden-path-smoke.ps1`
+
+## Forever rules
+
+Robert's rules are permanent — sole live copy: `%USERPROFILE%\.openclaude\ROBERT-RULES-FOREVER.txt` (auto-injected every session by the rules-loader hook). The Desktop copy and the Cursor copy are gone/stale — do not reference them.
+
+## Stack reminders
+
+- Context/autocompact: skill `openclaude-context-compact`
+- Stack check: `node setup\verify-local-stack.mjs`
+- Tool probe: `node setup\probe-tool-call.mjs` (must print `TOOL_CALL_PASS`)
+- Smoke: `setup\golden-path-smoke.ps1`
+- Real CLI: `dist\cli.mjs`
+- Software skills: `software-building`, `software-architecture`, `software-editing`, `software-creator`, `software-design`
+- Public APIs: skill `public-apis` — look up real endpoints; never invent URLs
+- Agents: kebab-case (e.g. `capability-dispatcher`)
+- Coding: tool-first — never narrate “let me explore” without Glob/Grep/Read in the same turn

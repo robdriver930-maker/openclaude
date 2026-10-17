@@ -5,7 +5,7 @@ rem  Matches run.bat daily default. Deep mode: run.bat
 rem ============================================================
 setlocal
 
-set "ROOT=C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+set "ROOT=C:\Users\robdr\Desktop\openclaude\openclaude-main"
 set "MODEL=qwen3.8-oc-code:27b"
 
 set "OPENCLAUDE_KEEP_CWD=1"

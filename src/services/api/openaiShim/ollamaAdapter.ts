@@ -1,4 +1,5 @@
 import { MIN_RECOMMENDED_OLLAMA_CONTEXT_TOKENS } from '../../../utils/ollamaContext.js'
+import { getOpenAIContextWindow } from '../../../utils/model/openaiContextWindows.js'
 
 type OpenAIMessage = {
   role: 'system' | 'user' | 'assistant' | 'tool'
@@ -54,9 +55,18 @@ function parsePositiveIntegerEnv(value: string | undefined): number | null {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-export function getOllamaNumCtx(): number {
+export function getOllamaNumCtx(model?: string): number {
+  // Explicit request-level override wins (documented escape hatch).
+  const explicit = parsePositiveIntegerEnv(process.env.OPENCLAUDE_OLLAMA_NUM_CTX)
+  if (explicit !== null) return explicit
+  // Per-model window from CLAUDE_CODE_OPENAI_CONTEXT_WINDOWS: num_ctx must
+  // match what the context map promises, or a 1M-window model gets silently
+  // truncated to the global default at request time.
+  const mapped = model ? getOpenAIContextWindow(model) : undefined
+  if (typeof mapped === 'number' && Number.isFinite(mapped) && mapped > 0) {
+    return mapped
+  }
   return (
-    parsePositiveIntegerEnv(process.env.OPENCLAUDE_OLLAMA_NUM_CTX) ??
     parsePositiveIntegerEnv(process.env.OLLAMA_CONTEXT_LENGTH) ??
     MIN_RECOMMENDED_OLLAMA_CONTEXT_TOKENS
   )

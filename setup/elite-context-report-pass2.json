@@ -1,0 +1,1224 @@
+[
+  {
+    "model": "BT-Ad-Art-Director:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Ad-Prompt-Writer:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Ad-Storyboard:latest",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": null,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Admin-Clerk:latest",
+    "arch": "granite",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Agent-Tools:latest",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Balanced-Chat:latest",
+    "arch": "phi3",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Big-Brain:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Bug-Hunter:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Client-Quotes:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Cloud-Coder:latest",
+    "status": "skip",
+    "reason": "show failed: HTTP 404"
+  },
+  {
+    "model": "BT-Cloud-GLM:latest",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "BT-Cloud-GPT-OSS:latest",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "BT-Cloud-General:latest",
+    "status": "skip",
+    "reason": "show failed: HTTP 404"
+  },
+  {
+    "model": "BT-Cloud-Kimi-Code:latest",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "BT-Cloud-MiniMax:latest",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "BT-Code-Fast:latest",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Code-Forge:latest",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Code-OC:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Code-Spec:latest",
+    "status": "skip",
+    "reason": "show failed: HTTP 500"
+  },
+  {
+    "model": "BT-Command-R7B:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Competitor-Scout:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Content-Calendar:latest",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": null,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Daily-HQ:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Daily-Standup:latest",
+    "arch": "phi3",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Deep-Think:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Deepseek-Coder-V2:latest",
+    "arch": "deepseek2",
+    "native": 163840,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Doc-Writer:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Embed-BGE:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "BT-Embed-Docs:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "BT-Embed-Large:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "BT-Fast-Chat:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Gemma-26B:latest",
+    "arch": "gemma4",
+    "native": 262144,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Gemma3-12B:latest",
+    "arch": "gemma3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-General-27B:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-General-Max:latest",
+    "arch": "qwen35moe",
+    "native": 262144,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-General-OC:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Granite-8B:latest",
+    "arch": "granite",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Inbox-Replier:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Llama31-8B:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Local-AI-Coach:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Mistral-Nemo:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Moondream:latest",
+    "arch": "phi2",
+    "native": 2048,
+    "from": null,
+    "to": 2048,
+    "servedBefore": 2048,
+    "final": 2048,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Offer-Builder:latest",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": null,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Onboard-Client:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Ops-Commander:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Phi3-Light:latest",
+    "arch": "phi3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Phi4-Smart:latest",
+    "arch": "phi3",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Plan-Builder:latest",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": null,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-PowerShell-Pro:latest",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Quick-Rewrite:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-QwQ-Reason:latest",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": null,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Qwen25-14B:latest",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Reputation:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Risk-Checker:latest",
+    "arch": "qwen3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-SEO-Local:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Sales-Closer:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Screenshot-Reader:latest",
+    "arch": "qwen25vl",
+    "native": 128000,
+    "from": null,
+    "to": 128000,
+    "servedBefore": 128000,
+    "final": 128000,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Social-Poster:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-StarCoder2:latest",
+    "arch": "starcoder2",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Support-Triage:latest",
+    "arch": "granite",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Think-Light:latest",
+    "arch": "qwen3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Tiny-Utility:latest",
+    "arch": "llama",
+    "native": 2048,
+    "from": null,
+    "to": 2048,
+    "servedBefore": 2048,
+    "final": 2048,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Vision-Desk:latest",
+    "arch": "qwen25vl",
+    "native": 128000,
+    "from": null,
+    "to": 128000,
+    "servedBefore": 128000,
+    "final": 128000,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Vision-Llava:latest",
+    "arch": "llama",
+    "native": 4096,
+    "from": null,
+    "to": 4096,
+    "servedBefore": 4096,
+    "final": 4096,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Website-Copy:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "BT-Windows-IT:latest",
+    "arch": "granite",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "bge-m3:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "bts-ad-director:latest",
+    "arch": "nemotron_h_omni",
+    "native": 131072,
+    "from": 131072,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "bts-windows-repair:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "cieloforge/deepseek-coder-6.7b-spec:latest",
+    "status": "skip",
+    "reason": "show failed: HTTP 500"
+  },
+  {
+    "model": "command-r7b:latest",
+    "arch": "cohere2",
+    "native": 8192,
+    "from": null,
+    "to": 8192,
+    "servedBefore": 8192,
+    "final": 8192,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "deepseek-coder-v2-instruct:latest",
+    "arch": "deepseek2",
+    "native": 163840,
+    "from": 131072,
+    "to": 163840,
+    "servedBefore": 131072,
+    "reBaked": true,
+    "pinAfter": 163840,
+    "proof": "Elite-OK",
+    "proofMs": 6988,
+    "gpu": null,
+    "final": 163840,
+    "status": "elite"
+  },
+  {
+    "model": "deepseek-coder-v2:16b",
+    "arch": "deepseek2",
+    "native": 163840,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "deepseek-coder-v2:16b-lite-instruct-q4_K_M",
+    "arch": "deepseek2",
+    "native": 163840,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "deepseek-r1:70b",
+    "arch": "llama",
+    "native": 131072,
+    "from": 65536,
+    "to": 65536,
+    "servedBefore": 65536,
+    "final": 65536,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "deepseek-r1:latest",
+    "arch": "qwen3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "deepseek-v4.1-flash:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "dna5rm/qwen3.8:27b-128k",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "gemma3:12b",
+    "arch": "gemma3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "gemma4:26b",
+    "arch": "gemma4",
+    "native": 262144,
+    "from": 131072,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "gemma4:31b-cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "glm-4.7-flash:latest",
+    "arch": "glm4moelite",
+    "native": 202752,
+    "from": 131072,
+    "to": 163840,
+    "servedBefore": 131072,
+    "reBaked": true,
+    "pinAfter": 163840,
+    "proof": "ELITE-OK",
+    "proofMs": 5505,
+    "gpu": 100,
+    "final": 163840,
+    "status": "elite"
+  },
+  {
+    "model": "glm-5.1:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "glm-5.3-flash:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "gpt-oss:20b-cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "granite3.3:8b",
+    "arch": "granite",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "kimi-k2.7-code:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "kimi-k3:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "llama3.1:8b",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "llama3.2:latest",
+    "arch": "llama",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "llama3.3:70b",
+    "arch": "llama",
+    "native": 131072,
+    "from": 65536,
+    "to": 65536,
+    "servedBefore": 65536,
+    "final": 65536,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "llava:13b",
+    "arch": "llama",
+    "native": 4096,
+    "from": null,
+    "to": 4096,
+    "servedBefore": 4096,
+    "final": 4096,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "minimax-m3:cloud",
+    "status": "skip",
+    "reason": "cloud model"
+  },
+  {
+    "model": "mistral-nemo:latest",
+    "arch": "llama",
+    "native": 1024000,
+    "from": null,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "moondream:latest",
+    "arch": "phi2",
+    "native": 2048,
+    "from": null,
+    "to": 2048,
+    "servedBefore": 2048,
+    "final": 2048,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "mxbai-embed-large:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "n0404n0404/heretic-distill:27b-tuned",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "n0404n0404/qwen3.6-finetune-qwen3.8-max-glm5.2-kimi-k3-distillation-a56-1168cb-heretic:q6_k",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "nemotron3:33b",
+    "arch": "nemotron_h_omni",
+    "native": 131072,
+    "from": 131072,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "nomic-embed-text:latest",
+    "status": "skip",
+    "reason": "embedding"
+  },
+  {
+    "model": "phi3:latest",
+    "arch": "phi3",
+    "native": 131072,
+    "from": null,
+    "to": 131072,
+    "servedBefore": 131072,
+    "final": 131072,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "phi4:latest",
+    "arch": "phi3",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen2.5-coder:32b",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen2.5-coder:3b",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen2.5-coder:7b",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen2.5:14b",
+    "arch": "qwen2",
+    "native": 32768,
+    "from": null,
+    "to": 32768,
+    "servedBefore": 32768,
+    "final": 32768,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen2.5vl:7b",
+    "arch": "qwen25vl",
+    "native": 128000,
+    "from": null,
+    "to": 128000,
+    "servedBefore": 128000,
+    "final": 128000,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "arch": "qwen3moe",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3-coder:latest",
+    "arch": "qwen3moe",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.5:35b",
+    "arch": "qwen35moe",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.6-oc:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.6:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.6:35b",
+    "arch": "qwen35moe",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.6:latest",
+    "arch": "qwen35moe",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.8-oc-code:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.8:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwen3.8:latest",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "qwq:32b",
+    "arch": "qwen2",
+    "native": 40960,
+    "from": 131072,
+    "to": 40960,
+    "servedBefore": 40960,
+    "final": 40960,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "robert-dev:27b",
+    "arch": "qwen35",
+    "native": 262144,
+    "from": 163840,
+    "to": 163840,
+    "servedBefore": 163840,
+    "final": 163840,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "starcoder2:15b",
+    "arch": "starcoder2",
+    "native": 16384,
+    "from": null,
+    "to": 16384,
+    "servedBefore": 16384,
+    "final": 16384,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "tinyllama:latest",
+    "arch": "llama",
+    "native": 2048,
+    "from": null,
+    "to": 2048,
+    "servedBefore": 2048,
+    "final": 2048,
+    "status": "elite",
+    "proof": "unchanged — not re-proofed"
+  },
+  {
+    "model": "uncensored:latest",
+    "arch": "deepseek2",
+    "native": 163840,
+    "from": 131072,
+    "to": 163840,
+    "servedBefore": 131072,
+    "reBaked": true,
+    "pinAfter": 163840,
+    "proof": "Elite-OK",
+    "proofMs": 4982,
+    "gpu": null,
+    "final": 163840,
+    "status": "elite"
+  }
+]

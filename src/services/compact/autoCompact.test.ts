@@ -232,6 +232,40 @@ describe('getEffectiveContextWindowSize', () => {
     }
   })
 
+  test('per-model JSON cap beats the scalar for listed models, * fallback for others', async () => {
+    const { getEffectiveContextWindowSize } = await importAutoCompact()
+    process.env.CLAUDE_CODE_USE_OPENAI = '1'
+    // In the test harness the model resolves to the 128k default window
+    // (no live context map), so the caps below are chosen to bind under it.
+    process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW = JSON.stringify({
+      'qwen3.8-oc-code:27b': 100000,
+      '*': 60000,
+    })
+    try {
+      const elite = getEffectiveContextWindowSize('qwen3.8-oc-code:27b')
+      // per-model cap binds: 100000 cap - 20000 summary reservation
+      expect(elite).toBe(80000)
+      const other = getEffectiveContextWindowSize('some-other-model')
+      // '*' fallback binds for models not listed: 60000 - 20000
+      expect(other).toBe(40000)
+    } finally {
+      restoreEnv()
+    }
+  })
+
+  test('scalar CLAUDE_CODE_AUTO_COMPACT_WINDOW still applies globally (legacy)', async () => {
+    const { getEffectiveContextWindowSize } = await importAutoCompact()
+    process.env.CLAUDE_CODE_USE_OPENAI = '1'
+    process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW = '100000'
+    try {
+      const effective = getEffectiveContextWindowSize('qwen3.8-oc-code:27b')
+      // 128000 default window capped at 100000, minus 20000 reservation
+      expect(effective).toBe(80000)
+    } finally {
+      restoreEnv()
+    }
+  })
+
   test('uses MiniMax M2 context and output metadata for compact budget', async () => {
     const { getEffectiveContextWindowSize } = await importAutoCompact()
     delete process.env.CLAUDE_CODE_USE_GEMINI

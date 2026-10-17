@@ -5,7 +5,7 @@ param([switch]$Fast)
 $ErrorActionPreference = "Continue"
 $fail = 0
 $warn = 0
-$root = "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+$root = "C:\Users\robdr\Desktop\openclaude\openclaude-main"
 $settings = "$env:USERPROFILE\.openclaude\settings.json"
 
 function Ok($msg) { Write-Host "[PASS] $msg" -ForegroundColor Green }

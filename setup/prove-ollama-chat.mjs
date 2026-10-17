@@ -7,9 +7,8 @@ const body = JSON.stringify({
   model,
   messages: [{ role: 'user', content: 'Reply with exactly: PING_OK' }],
   stream: false,
-  max_tokens: 256,
+  max_tokens: 32,
   temperature: 0,
-  reasoning_effort: 'max',
 })
 
 const result = await new Promise(resolve => {

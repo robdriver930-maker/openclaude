@@ -95,6 +95,27 @@ test('builds native URLs and selects the configured Ollama context length', () =
   expect(getOllamaNumCtx()).toBe(32768)
 })
 
+test('resolves num_ctx per model from the context window map', () => {
+  process.env.OLLAMA_CONTEXT_LENGTH = '32768'
+  delete process.env.OPENCLAUDE_OLLAMA_NUM_CTX
+  process.env.CLAUDE_CODE_OPENAI_CONTEXT_WINDOWS = JSON.stringify({
+    'kimi-k3:cloud': 1048576,
+    'qwen2.5-coder:7b': 32768,
+  })
+  // mapped model → its own window, not the global default
+  expect(getOllamaNumCtx('kimi-k3:cloud')).toBe(1048576)
+  expect(getOllamaNumCtx('qwen2.5-coder:7b')).toBe(32768)
+  // unmapped model → global fallback
+  expect(getOllamaNumCtx('some-unknown-model')).toBe(32768)
+  // no model argument → unchanged legacy behavior
+  expect(getOllamaNumCtx()).toBe(32768)
+  // explicit request-level override still beats the map
+  process.env.OPENCLAUDE_OLLAMA_NUM_CTX = '65536'
+  expect(getOllamaNumCtx('kimi-k3:cloud')).toBe(65536)
+  delete process.env.OPENCLAUDE_OLLAMA_NUM_CTX
+  delete process.env.CLAUDE_CODE_OPENAI_CONTEXT_WINDOWS
+})
+
 test('normalizes multipart messages, tool calls, and matching tool results', () => {
   expect(normalizeOllamaNativeMessages([
     {

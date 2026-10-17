@@ -10,7 +10,7 @@ import {
   AuthenticationError,
 } from '@anthropic-ai/sdk'
 import { getModelStrings } from './modelStrings.js'
-import { getCachedOllamaModelOptions, isOllamaProvider } from './ollamaModels.js'
+import { getCachedOllamaModelOptions, isOllamaProvider, prefetchOllamaModels } from './ollamaModels.js'
 import {
   getCachedNvidiaNimModelOptions,
   getDiscoveredNvidiaNimModelIds,
@@ -37,8 +37,21 @@ export async function validateModel(
   // For Ollama provider, validate against cached model list instead of API call
   // (skip enterprise allowlist since Ollama models are user-managed)
   if (getAPIProvider() === 'openai' && isOllamaProvider()) {
-    const ollamaModels = getCachedOllamaModelOptions()
-    const found = ollamaModels.some(m => m.value === normalizedModel)
+    let ollamaModels = getCachedOllamaModelOptions()
+    if (ollamaModels.length === 0) {
+      // Cache not yet filled (startup prefetch still in flight or missed):
+      // backfill from the Ollama /api/tags list instead of falling through to
+      // a live API probe, which would LOAD the model just to validate it.
+      await prefetchOllamaModels()
+      ollamaModels = getCachedOllamaModelOptions()
+    }
+    const normalizedLower = normalizedModel.toLowerCase()
+    // Match full tags ("qwen3:27b") AND base names ("qwen3"): Ollama itself
+    // resolves a bare name to its newest tag, so the picker accepts both.
+    const found =
+      ollamaModels.some(m => m.value === normalizedModel) ||
+      ollamaModels.some(m => (m.value ?? '').toLowerCase() === normalizedLower) ||
+      ollamaModels.some(m => (m.value ?? '').toLowerCase().split(':')[0] === normalizedLower)
     if (found) {
       validModelCache.set(normalizedModel, true)
       return { valid: true }
@@ -50,7 +63,7 @@ export async function validateModel(
       const suffix = names.length > MAX_SHOWN ? ` and ${names.length - MAX_SHOWN} more` : ''
       return { valid: false, error: `Model '${normalizedModel}' not found on Ollama server. Available: ${shown}${suffix}` }
     }
-    // If cache is empty, fall through to API validation
+    // If cache is still empty (server unreachable), fall through to API validation
   }
 
   // For NVIDIA NIM provider, validate against cached model list (static

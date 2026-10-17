@@ -10,7 +10,7 @@ import {
 import { clearMTLSCache } from './mtls.js'
 import { clearProxyCache, configureGlobalAgents } from './proxy.js'
 import { applyActiveProviderProfileFromConfig } from './providerProfiles.js'
-import { reapplyRememberedProviderFlag } from './providerFlag.js'
+import { reapplyRememberedProviderFlag, reapplyRememberedModelFlag } from './providerFlag.js'
 import { isSettingSourceEnabled } from './settings/constants.js'
 import {
   getSettings_DEPRECATED,
@@ -190,6 +190,7 @@ export function applySafeConfigEnvironmentVariables(): void {
   // highest precedence if both flags are present.
   reapplyRememberedEnvFileValues()
   reapplyRememberedProviderFlag()
+  reapplyRememberedModelFlag()
 }
 
 /**
@@ -209,6 +210,7 @@ export function applyConfigEnvironmentVariables(): void {
   applyActiveProviderProfileFromConfig()
   reapplyRememberedEnvFileValues()
   reapplyRememberedProviderFlag()
+  reapplyRememberedModelFlag()
 
   // Clear caches so agents are rebuilt with the new env vars
   clearCACertsCache()

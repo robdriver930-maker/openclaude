@@ -1,0 +1,197 @@
+# Launch OpenClaude for a profile (websites / coder / software-ai).
+# Separate chat history via CLAUDE_CONFIG_DIR. Does NOT kill other OpenClaude windows.
+
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$Profile,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Model,
+
+    [Parameter(Mandatory = $true)]
+    [string]$Title,
+
+    [string]$WorkDir = "",
+
+    [string]$ConfigDir = "",
+
+    [string]$LocalContextLength = ""
+)
+
+$ErrorActionPreference = "Stop"
+$root = "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+$openclaudeDesktop = "C:\Users\GoldenBoy\Desktop\openclaude"
+
+if (-not $WorkDir) {
+    $WorkDir = Join-Path (Join-Path $openclaudeDesktop "upgrades") $Profile
+}
+if (-not $ConfigDir) {
+    $ConfigDir = Join-Path $env:USERPROFILE ".openclaude-profiles\$Profile"
+}
+
+if (-not (Test-Path $WorkDir)) {
+    Write-Host "[FAIL] Work dir missing: $WorkDir" -ForegroundColor Red
+    Write-Host "Run setup\install-openclaude-profiles.ps1 first." -ForegroundColor Yellow
+    exit 1
+}
+
+if (-not (Test-Path $ConfigDir)) {
+    Write-Host "[FAIL] Config dir missing: $ConfigDir" -ForegroundColor Red
+    Write-Host "Run setup\install-openclaude-profiles.ps1 first." -ForegroundColor Yellow
+    exit 1
+}
+
+# Window title
+$host.UI.RawUI.WindowTitle = $Title
+
+# Reliability env (5090 tier — RTX 5090 + 64GB)
+$perfMarker = Join-Path $env:USERPROFILE ".openclaude\performance-mode.json"
+$maxPerf = $false
+if (Test-Path $perfMarker) {
+    try {
+        $pm = Get-Content $perfMarker -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($pm.mode -eq "max") { $maxPerf = $true }
+    } catch { }
+}
+
+# Cloud models (*-cloud) run on Ollama's servers and use NO local VRAM.
+# Local models run 100% on the GPU, so they need the GPU-safe context (not the 128k cloud window).
+$isCloud = $Model -match 'cloud'
+
+$keepAlive = if ($maxPerf) { "240m" } else { "120m" }
+$parallelLocal = if ($maxPerf) { "4" } else { "3" }
+$parallelCloud = "2"
+$loadedLocal = "3"
+$loadedCloud = "2"
+
+$env:CLAUDE_CODE_USE_OPENAI = "1"
+$env:OPENAI_BASE_URL = "http://127.0.0.1:11434/v1"
+$env:OPENAI_API_KEY = "ollama"
+$env:OPENAI_MODEL = $Model
+$env:OLLAMA_KEEP_ALIVE = $keepAlive
+$env:OLLAMA_FLASH_ATTENTION = "1"
+$env:USE_BUILTIN_RIPGREP = "0"
+$env:OPENCLAUDE_MAX_RETRIES = "15"
+$env:CLAUDE_ENABLE_STREAM_WATCHDOG = "1"
+$env:CLAUDE_CODE_NO_FLICKER = "0"
+# Parity with run.bat — no malware "refuse to edit" reminders on owner project work
+$env:OPENCLAUDE_DISABLE_TOOL_REMINDERS = "1"
+if ($maxPerf) {
+    $env:OLLAMA_KV_CACHE_TYPE = "q8_0"
+    $env:OLLAMA_NUM_THREAD = "24"
+    $env:OLLAMA_MAX_VRAM = "32768"
+    $env:OPENCLAUDE_PERFORMANCE_MODE = "max5090"
+}
+
+# Context limits - cloud models get 128k; local GPU models 5090 tier 65536 (fits 100% in VRAM)
+if ($isCloud) {
+    $env:OLLAMA_CONTEXT_LENGTH = "32768"
+    $env:CLAUDE_CODE_OPENAI_FALLBACK_CONTEXT_WINDOW = "131072"
+    $env:CLAUDE_CODE_AUTO_COMPACT_WINDOW = "110592"
+    $env:CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384"
+    $env:API_TIMEOUT_MS = "2400000"
+    $env:CLAUDE_STREAM_IDLE_TIMEOUT_MS = "900000"
+    $env:OPENCLAUDE_MAX_RETRIES = "20"
+    $env:OPENCLAUDE_RETRY_DELAY_MS = "3000"
+    $env:OLLAMA_NUM_PARALLEL = $parallelCloud
+    $env:OLLAMA_MAX_LOADED_MODELS = $loadedCloud
+} else {
+    # Default 160k for qwen3.6-oc* on 5090 (matches run.bat). Override with -LocalContextLength.
+    # Older 30b coder tags can pass -LocalContextLength 32768 if needed.
+    $defaultCtx = 163840
+    if ($Model -match 'qwen3-coder:30b|qwen2\.5-coder') { $defaultCtx = 32768 }
+    $ctxLen = if ($LocalContextLength -ne "") { [int]$LocalContextLength } else { $defaultCtx }
+    $compactWindow = [int]([math]::Floor($ctxLen * 0.875))
+    $env:OLLAMA_CONTEXT_LENGTH = "$ctxLen"
+    $env:CLAUDE_CODE_OPENAI_FALLBACK_CONTEXT_WINDOW = "$compactWindow"
+    $env:CLAUDE_CODE_AUTO_COMPACT_WINDOW = "$compactWindow"
+    $env:CLAUDE_CODE_MAX_OUTPUT_TOKENS = "6144"
+    $env:API_TIMEOUT_MS = "600000"
+    $env:CLAUDE_STREAM_IDLE_TIMEOUT_MS = "180000"
+    $env:OLLAMA_NUM_PARALLEL = "1"
+    $env:OLLAMA_MAX_LOADED_MODELS = "1"
+    $env:OLLAMA_NUM_PARALLEL = $parallelLocal
+    $env:OLLAMA_MAX_LOADED_MODELS = $loadedLocal
+}
+
+$rgPaths = @(
+    "$env:LOCALAPPDATA\Microsoft\WinGet\Links",
+    "$env:LOCALAPPDATA\Programs\cursor\resources\app\node_modules\@vscode\ripgrep\bin"
+)
+foreach ($p in $rgPaths) {
+    if (Test-Path $p) {
+        $env:PATH = "$p;$env:PATH"
+    }
+}
+
+# Separate chat history + settings per profile
+$env:CLAUDE_CONFIG_DIR = $ConfigDir
+
+# Silent freeze fix: bad Desktop junction under my-projects
+$badJunction = Join-Path $root "my-projects\Desktop"
+if (Test-Path $badJunction) {
+    Remove-Item $badJunction -Force -Recurse -ErrorAction SilentlyContinue
+}
+
+Set-Location $WorkDir
+
+# Ollama safe context for local models only (skip for cloud software-ai profile)
+if ($Profile -ne "software-ai") {
+    $setupCtx = Join-Path $root "setup-ollama-context.ps1"
+    if (Test-Path $setupCtx) {
+        $prevEap = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        & $setupCtx -Quiet
+        $setupExit = $LASTEXITCODE
+        $ErrorActionPreference = $prevEap
+        if ($setupExit -ne 0) {
+            Write-Host "WARNING: Ollama context setup failed - restart Ollama if you see 65536 errors." -ForegroundColor Yellow
+        }
+    }
+}
+
+Write-Host ""
+Write-Host "$Title starting..." -ForegroundColor Cyan
+Write-Host "Model: $Model"
+if ($isCloud) {
+    Write-Host "Context: 128k cloud (compact near 110k) - big-project mode. Note: cloud models use NO local VRAM."
+} else {
+    $ctxK = [math]::Round($ctxLen / 1024)
+    $compactK = [math]::Round($compactWindow / 1024)
+    Write-Host "Context: ${ctxK}k local (compact near ${compactK}k) - runs 100% on your GPU / VRAM."
+}
+Write-Host "Work dir: $WorkDir"
+Write-Host "Config: $ConfigDir"
+Write-Host "First reply can take 1-2 min while the model loads. Press Esc to cancel a stuck reply."
+Write-Host "If you see API Error, wait 10 sec and send the same message again."
+Write-Host ""
+
+# Warm this profile's model via Ollama API (keep_alive 60m, no ollama stop - other models stay loaded)
+try {
+    $warmBody = @{
+        model      = $Model
+        prompt     = "Say OK"
+        stream     = $false
+        keep_alive = "60m"
+    } | ConvertTo-Json -Compress
+
+    $null = Invoke-RestMethod `
+        -Uri "http://127.0.0.1:11434/api/generate" `
+        -Method Post `
+        -Body $warmBody `
+        -ContentType "application/json" `
+        -TimeoutSec 600 `
+        -ErrorAction Stop
+} catch {
+    Write-Host "WARNING: Could not warm $Model via Ollama API - is Ollama running?" -ForegroundColor Yellow
+    Write-Host $_.Exception.Message -ForegroundColor DarkYellow
+}
+
+$openclaudeCmd = Join-Path $root "bin\openclaude.cmd"
+if (-not (Test-Path $openclaudeCmd)) {
+    Write-Host "[FAIL] Missing $openclaudeCmd" -ForegroundColor Red
+    exit 1
+}
+
+& $openclaudeCmd --model $Model --dangerously-skip-permissions --permission-mode bypassPermissions
+exit $LASTEXITCODE

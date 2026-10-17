@@ -266,13 +266,14 @@ describe('discoverModelsForRoute', () => {
       stale: true,
       models: [
         {
-          id: 'ollama-qwen3-coder-next-cloud',
-          apiName: 'qwen3-coder-next:cloud',
-          maxOutputTokens: 32_768,
+          id: 'deepseek-v4-1-flash-cloud',
+          apiName: 'deepseek-v4.1-flash:cloud',
+          contextWindow: 1_048_576,
+          maxOutputTokens: 65_536,
         },
         {
-          id: 'deepseek-v4-pro-cloud',
-          apiName: 'deepseek-v4-pro:cloud',
+          id: 'gemma4-31b-cloud',
+          apiName: 'gemma4:31b-cloud',
           contextWindow: 1_048_576,
           maxOutputTokens: 65_536,
         },

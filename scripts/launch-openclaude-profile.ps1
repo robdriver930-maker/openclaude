@@ -19,8 +19,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$root = "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
-$openclaudeDesktop = "C:\Users\GoldenBoy\Desktop\openclaude"
+$root = "C:\Users\robdr\Desktop\openclaude\openclaude-main"
+$openclaudeDesktop = "C:\Users\robdr\Desktop\openclaude"
 
 if (-not $WorkDir) {
     $WorkDir = Join-Path (Join-Path $openclaudeDesktop "upgrades") $Profile
@@ -85,7 +85,7 @@ if ($maxPerf) {
 
 # Context limits - cloud models get 128k; local GPU models 5090 tier 65536 (fits 100% in VRAM)
 if ($isCloud) {
-    $env:OLLAMA_CONTEXT_LENGTH = "131072"
+    $env:OLLAMA_CONTEXT_LENGTH = "32768"
     $env:CLAUDE_CODE_OPENAI_FALLBACK_CONTEXT_WINDOW = "131072"
     $env:CLAUDE_CODE_AUTO_COMPACT_WINDOW = "110592"
     $env:CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384"

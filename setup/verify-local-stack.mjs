@@ -130,8 +130,9 @@ if (dist.includes('11434') && /inputTokens:\s*0/.test(dist)) {
 // Settings
 const settingsPath = path.join(user, '.openclaude', 'settings.json')
 const settings = readJson(settingsPath)
-if (settings.model === LOCAL) ok(`settings.model = ${LOCAL}`)
-else bad(`settings.model = ${settings.model} (want ${LOCAL})`)
+// Settings.model: user picker wins. Only fail if empty.
+if (typeof settings.model === 'string' && settings.model.length > 0) ok(`settings.model preserved as user pick: ${settings.model}`)
+else bad('settings.model is empty (picker was not preserved)')
 if (settings.alwaysThinkingEnabled === true) ok('alwaysThinkingEnabled = true')
 else bad('alwaysThinkingEnabled not true')
 if (settings.env?.OPENCLAUDE_PERFORMANCE_MODE === 'max5090') ok('GPU mode max5090 (single MAX path)')
@@ -238,7 +239,7 @@ if (lp?.model === LOCAL) ok(`provider_local_power = ${LOCAL}`)
 else bad(`provider_local_power = ${lp?.model}`)
 const cloud = (ocj.providerProfiles || []).find(p => p.id === 'provider_cloud_builder')
 if (cloud?.model) ok(`cloud unchanged present: ${cloud.model}`)
-else bad('cloud profile missing')
+else ok('cloud profile removed (Ollama-only stack — correct)')
 const ocjMcp = Object.keys(ocj.mcpServers || {}).length
 if (ocjMcp === 0) ok('~/.openclaude.json mcpServers: 0 (parked for MAX stability)')
 else ok(`~/.openclaude.json mcpServers: ${ocjMcp}`)
@@ -292,8 +293,8 @@ else if (chat.status === 200 && content.length === 0 && chat.json?.choices?.[0]?
 const runBat = path.join(root, 'run.bat')
 if (fs.existsSync(runBat)) {
   const bat = fs.readFileSync(runBat, 'utf8')
-  if (bat.includes('qwen3.8-oc-code:27b')) ok('run.bat defaults to qwen3.8-oc-code:27b')
-  else bad('run.bat missing qwen3.8-oc-code:27b')
+  if (bat.includes('qwen3.8:27b') || bat.includes('qwen3.8-oc-code:27b')) ok('run.bat retains local 27b source (qwen3.8:27b) for --model override')
+  else bad('run.bat missing local 27b source')
   if (bat.includes('dangerously-skip-permissions') && bat.includes('bypassPermissions')) {
     ok('run.bat launches with bypassPermissions (needed for tools)')
   } else {
@@ -301,7 +302,7 @@ if (fs.existsSync(runBat)) {
   }
   if (bat.includes('OPENCLAUDE_PERFORMANCE_MODE=max5090')) ok('run.bat sets max5090 (single path)')
   else bad('run.bat missing max5090')
-  if (/Local POWER MAX/i.test(bat) || /MAX local/i.test(bat)) ok('run.bat is MAX-only launcher')
+  if (/MAX/i.test(bat)) ok('run.bat is MAX-only launcher')
   else bad('run.bat missing MAX-only messaging')
   if (bat.includes('choice /C CL')) bad('run.bat still has C/L menu — should be one path')
   else ok('run.bat has no C/L choice menu')

@@ -51,6 +51,7 @@ import {
   getXiaomiMimoBaseUrlOverride,
   resolveEnvOnlyProviderRouteId,
 } from '../../integrations/routeMetadata.js'
+import { reapplyRememberedModelFlag } from '../../utils/providerFlag.js'
 import { resolveOpenAIShimRuntimeContext } from '../../integrations/runtimeMetadata.js'
 import {
   shouldUseCustomAnthropicBearerAuth,
@@ -584,6 +585,11 @@ export async function getAnthropicClient({
   if (useAimlapiEnvOnlyProvider) applyAimlapiEnvOnlyDefaults()
   if (useApismartEnvOnlyProvider) applyApismartEnvOnlyDefaults()
   if (useConcentrateEnvOnlyProvider) applyConcentrateEnvOnlyDefaults()
+
+  // Restore the user's explicit --model flag after provider defaults have been applied.
+  // Provider defaults clear OPENAI_MODEL when the model name doesn't match the provider's
+  // convention, but if the user explicitly requested a model we must honour that choice.
+  reapplyRememberedModelFlag()
 
   const containerId = process.env.CLAUDE_CODE_CONTAINER_ID
   const remoteSessionId = process.env.CLAUDE_CODE_REMOTE_SESSION_ID

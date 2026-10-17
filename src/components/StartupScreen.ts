@@ -13,7 +13,7 @@ import {
 } from '../integrations/routeMetadata.js'
 import { getLocalOpenAICompatibleProviderLabel } from '../utils/providerDiscovery.js'
 import { getSettings_DEPRECATED } from '../utils/settings/settings.js'
-import { parseUserSpecifiedModel } from '../utils/model/model.js'
+import { parseUserSpecifiedModel, normalizeModelSetting } from '../utils/model/model.js'
 import { DEFAULT_GEMINI_MODEL } from '../utils/providerProfile.js'
 import { BRAND_TAGLINE } from '../constants/brand.js'
 import { getGlobalConfig } from '../utils/config.js'
@@ -103,7 +103,14 @@ export function detectProvider(modelOverride?: string): { name: string; model: s
   }
 
   if (useOpenAI) {
-    const rawModel = modelOverride || process.env.OPENAI_MODEL || 'gpt-4o'
+    // --model flag/saved picker beats env.OPENAI_MODEL, which previously
+    // hijacked cloud selections back to the local card.
+    const settings = getSettings_DEPRECATED() || {}
+    const rawModel =
+      modelOverride ||
+      normalizeModelSetting(settings.model) ||
+      process.env.OPENAI_MODEL ||
+      'gpt-4o'
     const resolvedRequest = resolveProviderRequest({
       model: rawModel,
       baseUrl: process.env.OPENAI_BASE_URL,

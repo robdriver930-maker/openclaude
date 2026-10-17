@@ -1,5 +1,7 @@
 export const OPENCLAUDE_QUERY_HARD_MAX_MS_ENV =
   'OPENCLAUDE_QUERY_HARD_MAX_MS'
+export const OPENCLAUDE_QUERY_IDLE_TIMEOUT_MS_ENV =
+  'OPENCLAUDE_QUERY_IDLE_TIMEOUT_MS'
 
 // setTimeout-compatible upper bound; larger values can overflow timer APIs.
 export const MAX_CONFIGURABLE_QUERY_HARD_MAX_MS = 0x7fffffff
@@ -12,6 +14,7 @@ type DebugLogger = (
 
 export type QueryGuardResolvedOptions = {
   hardMaxQueryMs?: number
+  idleTimeoutMs?: number
 }
 
 function warnInvalidQueryHardMax(
@@ -33,35 +36,53 @@ export function getQueryGuardOptionsFromEnv(
   env: EnvLike = process.env,
   log: DebugLogger = defaultWarnLogger,
 ): QueryGuardResolvedOptions {
-  const raw = env[OPENCLAUDE_QUERY_HARD_MAX_MS_ENV]
-  const value = raw?.trim()
-  if (!value) {
-    return {}
+  const options: QueryGuardResolvedOptions = {}
+
+  const rawHardMax = env[OPENCLAUDE_QUERY_HARD_MAX_MS_ENV]
+  const hardMaxValue = rawHardMax?.trim()
+  if (hardMaxValue) {
+    if (!/^\d+$/.test(hardMaxValue)) {
+      warnInvalidQueryHardMax(
+        hardMaxValue,
+        'expected a positive integer in milliseconds',
+        log,
+      )
+    } else {
+      const parsedHardMax = Number(hardMaxValue)
+      if (!Number.isSafeInteger(parsedHardMax) || parsedHardMax <= 0) {
+        warnInvalidQueryHardMax(hardMaxValue, 'expected a positive finite integer', log)
+      } else if (parsedHardMax > MAX_CONFIGURABLE_QUERY_HARD_MAX_MS) {
+        warnInvalidQueryHardMax(
+          hardMaxValue,
+          `maximum is ${MAX_CONFIGURABLE_QUERY_HARD_MAX_MS}`,
+          log,
+        )
+      } else {
+        options.hardMaxQueryMs = parsedHardMax
+      }
+    }
   }
 
-  if (!/^\d+$/.test(value)) {
-    warnInvalidQueryHardMax(
-      value,
-      'expected a positive integer in milliseconds',
-      log,
-    )
-    return {}
+  const rawIdle = env[OPENCLAUDE_QUERY_IDLE_TIMEOUT_MS_ENV]
+  const idleValue = rawIdle?.trim()
+  if (idleValue) {
+    if (!/^\d+$/.test(idleValue)) {
+      log(
+        `${OPENCLAUDE_QUERY_IDLE_TIMEOUT_MS_ENV} invalid value "${idleValue}" (expected a positive integer in milliseconds); using default idle timeout`,
+        { level: 'warn' },
+      )
+    } else {
+      const parsedIdle = Number(idleValue)
+      if (Number.isSafeInteger(parsedIdle) && parsedIdle > 0 && parsedIdle <= MAX_CONFIGURABLE_QUERY_HARD_MAX_MS) {
+        options.idleTimeoutMs = parsedIdle
+      } else {
+        log(
+          `${OPENCLAUDE_QUERY_IDLE_TIMEOUT_MS_ENV} invalid value "${idleValue}"; using default idle timeout`,
+          { level: 'warn' },
+        )
+      }
+    }
   }
 
-  const parsed = Number(value)
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    warnInvalidQueryHardMax(value, 'expected a positive finite integer', log)
-    return {}
-  }
-
-  if (parsed > MAX_CONFIGURABLE_QUERY_HARD_MAX_MS) {
-    warnInvalidQueryHardMax(
-      value,
-      `maximum is ${MAX_CONFIGURABLE_QUERY_HARD_MAX_MS}`,
-      log,
-    )
-    return {}
-  }
-
-  return { hardMaxQueryMs: parsed }
+  return options
 }

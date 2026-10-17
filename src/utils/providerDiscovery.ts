@@ -62,6 +62,9 @@ function normalizeOllamaModels(
 ): OllamaModelDescriptor[] {
   return (payload.models ?? [])
     .filter(model => Boolean(model.name))
+    // Every installed model is selectable: custom BT/BTS business aliases are
+    // real, runnable models and Robert requires the full fleet in the picker
+    // (reverses the 2026-09-20 hiding rule).
     .map(model => ({
       name: model.name!,
       sizeBytes: typeof model.size === 'number' ? model.size : null,

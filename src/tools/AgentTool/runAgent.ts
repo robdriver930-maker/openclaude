@@ -822,13 +822,14 @@ export async function* runAgent({
       maxTurns ?? agentDefinition.maxTurns,
       agentDefinition.agentType,
     )
-    const configuredMaxSteps =
+    const configuredMaxSteps = (
       Number.isSafeInteger(maxSteps) && maxSteps! > 0
         ? maxSteps
         : Number.isSafeInteger(agentDefinition.maxSteps) &&
             agentDefinition.maxSteps! > 0
           ? agentDefinition.maxSteps
           : resolvedMaxTurns
+    ) as number
     const queryIterator = query({
       messages: initialMessages,
       systemPrompt: agentSystemPrompt,

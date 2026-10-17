@@ -1,6 +1,6 @@
 @echo off
 title OpenClaude Maintenance
-cd /d "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+cd /d "C:\Users\robdr\Desktop\openclaude\openclaude-main"
 echo.
 echo OpenClaude weekly maintenance — keeps him fast for months of use.
 echo This takes 1-3 minutes (model warm + Playwright check).

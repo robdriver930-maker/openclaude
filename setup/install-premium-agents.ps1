@@ -510,7 +510,7 @@ Instrument what matters. Make failures diagnosable without guesswork.
 
 Protect integrity. Design for query patterns. Migrate carefully.
 "@ },
-    @{ n="ai-systems-integrator"; d="Use when integrating LLMs, tools, agents, evals, and AI product features."; c="purple"; t=$toolsFull; e="high"; s="ai-systems-engineer,claude-api,mcp-builder"; b=@"
+    @{ n="ai-systems-integrator"; d="Use when integrating LLMs, tools, agents, evals, and AI product features."; c="purple"; t=$toolsFull; e="high"; s="ai-systems-engineer,mcp-builder"; b=@"
 # AI Systems Integrator (Premium)
 
 Separate prompts, tools, business logic, UI. Tight tool schemas. Streaming for chat. Never invent API keys.

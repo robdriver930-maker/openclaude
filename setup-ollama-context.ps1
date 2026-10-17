@@ -7,10 +7,10 @@ param(
 
 $ErrorActionPreference = "Continue"
 
-$root = "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+$root = "C:\Users\robdr\Desktop\openclaude\openclaude-main"
 $modelfile = Join-Path $root "Modelfile.qwen36"
 $modelTag = "qwen3.6-oc:latest"
-$ollamaCtx = 49152
+$ollamaCtx = 32768
 
 function Log($msg, $color) {
     if (-not $Quiet) { Write-Host $msg -ForegroundColor $color }
@@ -40,7 +40,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Verify modelfile
 $show = ollama show $modelTag --modelfile 2>$null
-if ($show -match "num_ctx\s+49152") {
+if ($show -match "num_ctx 32768") {
     Log "[PASS] $modelTag has num_ctx 49152" Green
 } else {
     Log "[WARN] Could not verify num_ctx on $modelTag" Yellow

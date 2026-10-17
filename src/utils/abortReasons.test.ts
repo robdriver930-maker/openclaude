@@ -190,6 +190,7 @@ describe('abort reason normalization', () => {
       'agent-summary-superseded': true,
       'memory-extraction-superseded': true,
       'tool-timeout': true,
+      'agent-deadline': true,
       'parent-ended': true,
       'unknown-abort': true,
     }

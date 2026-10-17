@@ -45,7 +45,7 @@ function getMiniMaxModelEnv(): string | undefined {
   return process.env.ANTHROPIC_MODEL || process.env.OPENAI_MODEL
 }
 
-function normalizeModelSetting(value: unknown): ModelName | ModelAlias | undefined {
+export function normalizeModelSetting(value: unknown): ModelName | ModelAlias | undefined {
   if (typeof value !== 'string') return undefined
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : undefined
@@ -426,9 +426,18 @@ export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
   if (getAPIProvider() === 'mistral') {
     return process.env.MISTRAL_MODEL || 'devstral-latest'
   }
-  // OpenAI provider: always use the configured OpenAI model
+  // OpenAI provider: prefer the model the user picked/saved (settings.model) over
+  // the env var. env.OPENAI_MODEL historically forced qwen3.8-oc-code:27b over a
+  // cloud picker selection (glm-5.3-flash:cloud), silently downgrading requests
+  // to the local card (~66 tok/s) — the "5 minutes to reply" bug. Env stays as
+  // the explicit-override path for runs launched with --model/env only.
   if (getAPIProvider() === 'openai') {
-    return process.env.OPENAI_MODEL || 'gpt-4o'
+    const settings = getSettings_DEPRECATED() || {}
+    return (
+      normalizeModelSetting(settings.model) ||
+      normalizeModelSetting(process.env.OPENAI_MODEL) ||
+      'gpt-4o'
+    )
   }
   // Codex provider: always use the configured Codex model
   if (getAPIProvider() === 'codex') {

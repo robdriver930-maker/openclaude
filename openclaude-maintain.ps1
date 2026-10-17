@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = "Continue"
 $fail = 0
 $warn = 0
-$root = "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+$root = "C:\Users\robdr\Desktop\openclaude\openclaude-main"
 $ocHome = "$env:USERPROFILE\.openclaude"
 $settings = "$ocHome\settings.json"
 $stamp = "$ocHome\last-maintain.txt"

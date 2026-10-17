@@ -82,6 +82,40 @@ test('returns null when a local openai-compatible /models request fails', async 
   ).resolves.toBeNull()
 })
 
+test('ollama discovery advertises every installed model including BT/BTS aliases', async () => {
+  const { probeOllamaModelCatalog } = await loadProviderDiscoveryModule()
+
+  globalThis.fetch = asMockFetch(mock(input => {
+    const url = typeof input === 'string' ? input : input.url
+    expect(url).toBe('http://localhost:11434/api/tags')
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({
+          models: [
+            { name: 'glm-5.3-flash:cloud' },
+            { name: 'BT-Code-OC:latest' },
+            { name: 'bts-ad-director:latest' },
+            { name: 'qwen3.8:27b' },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    )
+  }))
+
+  const result = await probeOllamaModelCatalog({
+    baseUrl: 'http://localhost:11434',
+  })
+
+  expect(result.reachable).toBe(true)
+  expect(result.models.map(m => m.name)).toEqual([
+    'glm-5.3-flash:cloud',
+    'BT-Code-OC:latest',
+    'bts-ad-director:latest',
+    'qwen3.8:27b',
+  ])
+})
+
 test('detects LM Studio from the default localhost port', async () => {
   const { getLocalOpenAICompatibleProviderLabel } =
     await loadProviderDiscoveryModule()

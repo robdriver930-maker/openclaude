@@ -89,6 +89,8 @@ let rememberedProviderFlag:
     }
   | null = null
 
+let rememberedModelFlag: string | null = null
+
 /**
  * Extract the value of --provider from argv.
  * Returns null if the flag is absent or has no value.
@@ -134,8 +136,19 @@ export function reapplyRememberedProviderFlag():
   return applyProviderFlag(rememberedProviderFlag.provider, args)
 }
 
+/**
+ * Re-apply the remembered standalone --model flag after settings or profile
+ * re-applies have potentially clobbered the env var. This is a no-op if no
+ * --model flag was parsed at startup.
+ */
+export function reapplyRememberedModelFlag(): void {
+  if (!rememberedModelFlag) return
+  applyModelFlagFromArgs(['--model', rememberedModelFlag])
+}
+
 export function clearRememberedProviderFlagForTests(): void {
   rememberedProviderFlag = null
+  rememberedModelFlag = null
 }
 
 /**
@@ -289,6 +302,9 @@ export function applyModelFlagFromArgs(args: string[]): void {
   if (args.includes('--provider')) return
   const model = parseModelFlag(args)
   if (!model) return
+
+  // Remember so settings/profile re-applies can restore the explicit flag.
+  rememberedModelFlag = model
 
   const useGemini =
     process.env.CLAUDE_CODE_USE_GEMINI === '1' ||

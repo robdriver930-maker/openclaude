@@ -2025,12 +2025,16 @@ async function run(): Promise<CommanderCommand> {
     }
 
     // Compute effective model early so hooks can run in parallel with MCP
-    // If user didn't specify a model but agent has one, use the agent's model
+    // If user didn't specify a model but agent has one, use the agent's model.
+    // Only set the override when there's an actual model — setting null would
+    // shadow the env var / settings resolution that happens later.
     let effectiveModel = userSpecifiedModel;
     if (!effectiveModel && mainThreadAgentDefinition?.model && mainThreadAgentDefinition.model !== 'inherit') {
       effectiveModel = parseUserSpecifiedModel(mainThreadAgentDefinition.model);
     }
-    setMainLoopModelOverride(effectiveModel);
+    if (effectiveModel !== undefined && effectiveModel !== null) {
+      setMainLoopModelOverride(effectiveModel);
+    }
 
     // Compute resolved model for hooks (use user-specified model at launch)
     setInitialMainLoopModel(getUserSpecifiedModelSetting() || null);

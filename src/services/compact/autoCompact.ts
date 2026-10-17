@@ -34,6 +34,57 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 // Based on p99.99 of compact summary output being 17,387 tokens.
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
 
+// Cache for the parsed per-model auto-compact cap table. Parsed once per
+// process on first use; invalidate via deletion of the env var (tests).
+let cachedAutoCompactWindowTable: Record<string, number> | null = null
+let cachedAutoCompactWindowTableRaw: string | undefined
+
+// Resolves the effective auto-compact window cap for a model.
+// - CLAUDE_CODE_AUTO_COMPACT_WINDOW as JSON object: per-model caps; unknown
+//   models fall back to the optional scalar value in the same object's
+//   `default` key or the legacy scalar env var.
+// - CLAUDE_CODE_AUTO_COMPACT_WINDOW as scalar string: legacy global cap.
+// - OPENCLAUDE_AUTO_COMPACT_WINDOWS (JSON object): same per-model semantics,
+//   dedicated var so the applier can set both without ambiguity.
+// Returns undefined when no cap applies.
+export function resolveAutoCompactWindowCap(model: string): number | undefined {
+  const raw = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  if (!raw?.trim()) return undefined
+  const trimmed = raw.trim()
+  if (trimmed.startsWith('{')) {
+    if (
+      cachedAutoCompactWindowTable === null ||
+      cachedAutoCompactWindowTableRaw !== raw
+    ) {
+      try {
+        const parsed = JSON.parse(trimmed) as unknown
+        cachedAutoCompactWindowTable =
+          parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+            ? (parsed as Record<string, unknown>) as Record<string, number>
+            : null
+      } catch {
+        cachedAutoCompactWindowTable = null
+      }
+      cachedAutoCompactWindowTableRaw = raw
+    }
+    const table = cachedAutoCompactWindowTable
+    if (table) {
+      const exact = table[model]
+      if (typeof exact === 'number' && Number.isFinite(exact) && exact > 0) {
+        return exact
+      }
+      const fallback = table['*']
+      if (typeof fallback === 'number' && Number.isFinite(fallback) && fallback > 0) {
+        return fallback
+      }
+    }
+    return undefined
+  }
+  const parsed = parseInt(trimmed, 10)
+  if (!isNaN(parsed) && parsed > 0) return parsed
+  return undefined
+}
+
 // Returns the context window size minus the max output tokens for the model
 export function getEffectiveContextWindowSize(
   model: string,
@@ -49,12 +100,14 @@ export function getEffectiveContextWindowSize(
     runtimeLimits,
   )
 
-  const autoCompactWindow = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  // Per-model or global cap. A scalar value caps every model's effective
+  // context (legacy behavior). A JSON object value provides per-model caps so
+  // large-window models aren't compacted at the smallest model's limit
+  // (e.g. a 1M-window cloud model compacting at a 143k global cap), while
+  // unknown models fall back to the scalar CLAUDE_CODE_AUTO_COMPACT_WINDOW.
+  const autoCompactWindow = resolveAutoCompactWindowCap(model)
   if (autoCompactWindow) {
-    const parsed = parseInt(autoCompactWindow, 10)
-    if (!isNaN(parsed) && parsed > 0) {
-      contextWindow = Math.min(contextWindow, parsed)
-    }
+    contextWindow = Math.min(contextWindow, autoCompactWindow)
   }
 
   // Floor: effective context must be at least the summary reservation plus a

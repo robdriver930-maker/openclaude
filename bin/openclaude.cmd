@@ -7,7 +7,7 @@ if /i not "%OPENCLAUDE_KEEP_CWD%"=="1" (
   if defined OPENCLAUDE_INSTALL_ROOT (
     cd /d "%OPENCLAUDE_INSTALL_ROOT%"
   ) else (
-    cd /d "C:\Users\GoldenBoy\Desktop\openclaude\openclaude-main"
+    cd /d "C:\Users\robdr\Desktop\openclaude\openclaude-main"
   )
 )
 
@@ -15,6 +15,8 @@ set "SCRIPT_DIR=%~dp0"
 set "REPO_ROOT=%SCRIPT_DIR%.."
 for %%I in ("%REPO_ROOT%") do set "REPO_ROOT=%%~fI"
 
+set "PATH=%REPO_ROOT%\tools\runtime\node-v22.23.3-win-x64;%REPO_ROOT%\tools\runtime\bun-windows-x64;%REPO_ROOT%\tools\runtime\PortableGit\cmd;%LOCALAPPDATA%\Programs\Ollama;%PATH%"
+set "CLAUDE_CODE_GIT_BASH_PATH=%REPO_ROOT%\tools\runtime\PortableGit\bin\bash.exe"
 if not defined OPENCLAUDE_INSTALL_ROOT set "OPENCLAUDE_INSTALL_ROOT=%REPO_ROOT%"
 if not defined CLAUDE_CODE_USE_OPENAI set "CLAUDE_CODE_USE_OPENAI=1"
 if not defined OPENAI_BASE_URL set "OPENAI_BASE_URL=http://127.0.0.1:11434/v1"
