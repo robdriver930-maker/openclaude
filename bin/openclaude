@@ -16,6 +16,15 @@ import { enableNodeCompileCacheIfAvailable } from './node-compile-cache.mjs'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const distPath = join(__dirname, '..', 'dist', 'cli.mjs')
 
+// Ensure the repo's portable ripgrep is discoverable by Glob/Grep even when
+// no system rg exists. Prepend it to PATH (no-op on platforms without the dir).
+{
+  const rgDir = join(__dirname, '..', 'tools', 'runtime', 'ripgrep')
+  if (existsSync(rgDir) && !process.env.PATH?.split(':').includes(rgDir)) {
+    process.env.PATH = `${rgDir}${process.platform === 'win32' ? ';' : ':'}${process.env.PATH ?? ''}`
+  }
+}
+
 const HEAP_RELAUNCHED_ENV = 'OPENCLAUDE_HEAP_RELAUNCHED'
 const DISABLE_HEAP_RELAUNCH_ENV = 'OPENCLAUDE_DISABLE_HEAP_RELAUNCH'
 const HEAP_SIZE_ENV = 'OPENCLAUDE_NODE_MAX_OLD_SPACE_SIZE_MB'

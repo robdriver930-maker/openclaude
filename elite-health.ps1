@@ -4,7 +4,8 @@ $root=$PSScriptRoot
 $failures=0
 function Check($label,$ok){if($ok){Write-Host "[PASS] $label"}else{Write-Host "[FAIL] $label";$script:failures++}}
 Write-Host 'Elite diagnostics (no model generation, installs or system changes)'
-foreach($relative in @('elite-launch.bat','dist\cli.mjs','tools\runtime\node-v22.23.3-win-x64\node.exe','tools\runtime\bun-windows-x64\bun.exe','tools\runtime\PortableGit\bin\bash.exe','node_modules\@vscode\ripgrep-win32-x64\bin\rg.exe')){Check $relative (Test-Path -LiteralPath (Join-Path $root $relative))}
+foreach($relative in @('elite-launch.bat','dist\cli.mjs','tools\runtime\node-v22.23.3-win-x64\node.exe','tools\runtime\bun-windows-x64\bun.exe','tools\runtime\PortableGit\bin\bash.exe')){Check $relative (Test-Path -LiteralPath (Join-Path $root $relative))}
+Check 'ripgrep (portable or node_modules)' ((Test-Path -LiteralPath (Join-Path $root 'tools\runtime\ripgrep\rg.exe')) -or (Test-Path -LiteralPath (Join-Path $root 'node_modules\@vscode\ripgrep-win32-x64\bin\rg.exe')))
 try{
  $settings=Get-Content -LiteralPath "$env:USERPROFILE\.openclaude\settings.json" -Raw | ConvertFrom-Json
  Check 'Ollama endpoint' ($settings.env.OPENAI_BASE_URL -eq 'http://127.0.0.1:11434/v1')

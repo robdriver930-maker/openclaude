@@ -644,6 +644,13 @@ const PluginUserConfigOptionSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe('For string type: allow an array of strings'),
+      options: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'Allowed values for a string option (rendered as a dropdown). ' +
+            'Used by official plugins such as code-modernization.',
+        ),
       sensitive: z
         .boolean()
         .optional()

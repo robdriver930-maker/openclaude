@@ -60,13 +60,12 @@ if not exist "%ROOT%\dist\cli.mjs" (
   exit /b 1
 )
 
-if not exist "C:\Program Files\nodejs\node.exe" (
-  where node >nul 2>&1
-  if errorlevel 1 (
-    echo ERROR: Node.js not found. Install from https://nodejs.org/
-    pause
-    exit /b 1
-  )
+set "NODE_EXE=%ROOT%\Tools\runtime\node-v22.23.3-win-x64\node.exe"
+if not exist "%NODE_EXE%" set "NODE_EXE=node"
+where %NODE_EXE% >nul 2>&1 || if not exist "%NODE_EXE%" (
+  echo ERROR: Node.js not found. Expected at Tools\runtime\node-v22.23.3-win-x64\ or on PATH.
+  pause
+  exit /b 1
 )
 
 echo Waiting for Ollama...
@@ -102,7 +101,7 @@ if errorlevel 1 (
 )
 
 echo Applying local MAX settings...
-"C:\Program Files\nodejs\node.exe" "%ROOT%\setup\apply-local-model-settings.mjs"
+"%NODE_EXE%" "%ROOT%\setup\apply-local-model-settings.mjs"
 if errorlevel 1 (
   echo ERROR: Could not write local MAX settings.
   pause
@@ -112,7 +111,7 @@ if errorlevel 1 (
 :: If no --model was supplied, adopt the model last picked via /model.
 if "%MODEL%"=="" (
   for /f "usebackq delims=" %%m in (`powershell -NoProfile -Command "(Get-Content '%USERPROFILE%\.openclaude\settings.json' | ConvertFrom-Json).model" 2^>nul`) do set "MODEL=%%m"
-  if "%MODEL%"=="" set "MODEL=qwen3.6:27b"
+  if "%MODEL%"=="" set "MODEL=qwen3.8-oc-code:27b"
 )
 
 echo Current model: %MODEL%
@@ -134,7 +133,7 @@ if errorlevel 1 (
     )
   ) || (
     echo First-time bake of %MODEL% from %SOURCE% ^(pull can take several minutes^)...
-    "C:\Program Files\nodejs\node.exe" "%ROOT%\setup\create-coding-model.mjs"
+    "%NODE_EXE%" "%ROOT%\setup\create-coding-model.mjs"
     if errorlevel 1 (
       echo ERROR: Could not create %MODEL% from %SOURCE%
       echo Fix: ollama pull %SOURCE%
@@ -147,8 +146,20 @@ if errorlevel 1 (
   )
 )
 
+:: Warm-up: large models need a moment after `ollama show` before the first
+:: /v1 request reliably succeeds. A short pre-flight chat proof lets the KV
+:: cache initialise so the real OpenClaude launch does not hit a 500 on load.
+echo Warming up model ^(this can take 10-30s on first load^)...
+timeout /t 2 /nobreak >nul
+for /L %%i in (1,1,6) do (
+  "%NODE_EXE%" "%ROOT%\setup\prove-ollama-chat.mjs" "%MODEL%" >nul 2>&1
+  if not errorlevel 1 goto chat_proof_ok
+  timeout /t 5 /nobreak >nul
+)
+
+:chat_proof_ok
 echo Proving chat link to Ollama...
-"C:\Program Files\nodejs\node.exe" "%ROOT%\setup\prove-ollama-chat.mjs" "%MODEL%"
+"%NODE_EXE%" "%ROOT%\setup\prove-ollama-chat.mjs" "%MODEL%"
 if errorlevel 1 (
   echo ERROR: Ollama chat failed — OpenClaude would Hyperspace with no reply.
   echo Fix: close OpenClaude, run: node setup\verify-local-stack.mjs
@@ -220,7 +231,7 @@ set "CLAUDE_CODE_USE_POWERSHELL_TOOL=1"
 set "OPENCLAUDE_DISABLE_TOOL_REMINDERS=1"
 set "OPENCLAUDE_TTS="
 set "OPENCLAUDE_INSTALL_ROOT=%ROOT%"
-set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Links;%LOCALAPPDATA%\Programs\cursor\resources\app\node_modules\@vscode\ripgrep\bin;%PATH%"
+set "PATH=%ROOT%\tools\runtime\ripgrep;%LOCALAPPDATA%\Microsoft\WinGet\Links;%LOCALAPPDATA%\Programs\cursor\resources\app\node_modules\@vscode\ripgrep\bin;%PATH%"
 
 if exist "C:\Program Files\Git\bin\bash.exe" set "CLAUDE_CODE_GIT_BASH_PATH=C:\Program Files\Git\bin\bash.exe"
 
@@ -237,9 +248,6 @@ echo Perf: %OPENCLAUDE_PERFORMANCE_MODE%
 echo After tools it continues automatically. If context fills: /clear then continue.
 echo Press Esc to cancel a stuck reply.
 echo.
-
-set "NODE_EXE=C:\Program Files\nodejs\node.exe"
-if not exist "%NODE_EXE%" set "NODE_EXE=node"
 
 :: 32 GB system RAM budget for Node; Ollama owns the GPU.
 "%NODE_EXE%" --max-old-space-size=32768 "%ROOT%\dist\cli.mjs" --bare --model %MODEL% --effort max --dangerously-skip-permissions --permission-mode bypassPermissions %PASSTHRU%

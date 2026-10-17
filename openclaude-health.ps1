@@ -35,7 +35,7 @@ try {
     if ($nv) { Ok "Node.js $nv" } else { Bad "Node.js not found" }
 } catch { Bad "Node.js not found" }
 
-# ripgrep (Glob/Grep)
+# ripgrep (Glob/Grep) — accept system rg, WinGet link, or the portable copy
 $rgOk = $false
 try {
     $null = Get-Command rg -ErrorAction Stop
@@ -43,7 +43,8 @@ try {
 } catch {
     if (Test-Path "$env:LOCALAPPDATA\Microsoft\WinGet\Links\rg.exe") { $rgOk = $true }
 }
-if ($rgOk) { Ok "ripgrep on PATH" } else { Bad "ripgrep missing - winget install BurntSushi.ripgrep.MSVC" }
+if (-not $rgOk -and (Test-Path "$root\tools\runtime\ripgrep\rg.exe")) { $rgOk = $true }
+if ($rgOk) { Ok "ripgrep available" } else { Bad "ripgrep missing - winget install BurntSushi.ripgrep.MSVC" }
 
 # Ollama
 try {

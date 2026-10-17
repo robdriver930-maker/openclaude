@@ -85,6 +85,12 @@ Write-Host "Max output: $maxOutput tokens" -ForegroundColor Cyan
 if ($Bare) { Write-Host "Mode:       BARE (no auto-scan)" -ForegroundColor Cyan }
 Write-Host "==========================================" -ForegroundColor Cyan
 
+# Ensure the portable ripgrep is on PATH so Glob/Grep work even without a system rg.
+$rgDir = "$Root\tools\runtime\ripgrep"
+if ((Test-Path $rgDir) -and ($env:PATH -notlike "*$rgDir*")) {
+    $env:PATH = "$rgDir;$env:PATH"
+}
+
 # Build env
 $env:OPENAI_API_KEY = "x"
 $env:OPENAI_BASE_URL = "http://127.0.0.1:11434/v1"
@@ -121,7 +127,8 @@ if (-not (Test-Path $cli)) {
     exit 1
 }
 
-$node = "C:\Program Files\nodejs\node.exe"
+$node = "$Root\tools\runtime\node-v22.23.3-win-x64\node.exe"
+if (-not (Test-Path $node)) { $node = "C:\Program Files\nodejs\node.exe" }
 if (-not (Test-Path $node)) { $node = "node" }
 
 $argList = @("--max-old-space-size=32768", $cli, "--model", $Model, "--effort", "max", "--dangerously-skip-permissions", "--permission-mode", "bypassPermissions")

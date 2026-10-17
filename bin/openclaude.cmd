@@ -15,7 +15,7 @@ set "SCRIPT_DIR=%~dp0"
 set "REPO_ROOT=%SCRIPT_DIR%.."
 for %%I in ("%REPO_ROOT%") do set "REPO_ROOT=%%~fI"
 
-set "PATH=%REPO_ROOT%\tools\runtime\node-v22.23.3-win-x64;%REPO_ROOT%\tools\runtime\bun-windows-x64;%REPO_ROOT%\tools\runtime\PortableGit\cmd;%LOCALAPPDATA%\Programs\Ollama;%PATH%"
+set "PATH=%REPO_ROOT%\tools\runtime\node-v22.23.3-win-x64;%REPO_ROOT%\tools\runtime\bun-windows-x64;%REPO_ROOT%\tools\runtime\ripgrep;%REPO_ROOT%\tools\runtime\PortableGit\cmd;%LOCALAPPDATA%\Programs\Ollama;%PATH%"
 set "CLAUDE_CODE_GIT_BASH_PATH=%REPO_ROOT%\tools\runtime\PortableGit\bin\bash.exe"
 if not defined OPENCLAUDE_INSTALL_ROOT set "OPENCLAUDE_INSTALL_ROOT=%REPO_ROOT%"
 if not defined CLAUDE_CODE_USE_OPENAI set "CLAUDE_CODE_USE_OPENAI=1"
@@ -27,7 +27,9 @@ if not defined OPENCLAUDE_DISABLE_TOOL_REMINDERS set "OPENCLAUDE_DISABLE_TOOL_RE
 
 set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Links;%LOCALAPPDATA%\Programs\cursor\resources\app\node_modules\@vscode\ripgrep\bin;%PATH%"
 
-if exist "C:\Program Files\nodejs\node.exe" (
+if exist "%REPO_ROOT%\tools\runtime\node-v22.23.3-win-x64\node.exe" (
+  set "NODE_EXE=%REPO_ROOT%\tools\runtime\node-v22.23.3-win-x64\node.exe"
+) else if exist "C:\Program Files\nodejs\node.exe" (
   set "NODE_EXE=C:\Program Files\nodejs\node.exe"
 ) else if exist "C:\Program Files (x86)\nodejs\node.exe" (
   set "NODE_EXE=C:\Program Files (x86)\nodejs\node.exe"
