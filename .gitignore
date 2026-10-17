@@ -25,3 +25,10 @@ plan/
 .tmp
 .tmp-*
 temp_reference/
+
+# Portable runtimes (node/bun/ripgrep/PortableGit) are machine-local, ~745MB.
+# They are NOT committed (exceed GitHub limits). Restore with: powershell setup/fetch-runtimes.ps1
+Tools/runtime/
+
+# Shim milestone logs (diag/shim-YYYY-MM-DD.log) — per-day stall forensics, local only.
+diag/
